@@ -6,12 +6,12 @@ xml-class-transformer
 
 ### Interfaces
 
-- [XmlPropertyOpts](interfaces/XmlPropertyOpts.md)
+- [XmlEntityOptions](interfaces/XmlEntityOptions.md)
+- [XmlPropertyOptions](interfaces/XmlPropertyOptions.md)
 
 ### Type Aliases
 
 - [AnyClass](README.md#anyclass)
-- [XmlEntityOpts](README.md#xmlentityopts)
 - [XmlType](README.md#xmltype)
 
 ### Functions
@@ -37,24 +37,7 @@ xml-class-transformer
 
 #### Defined in
 
-[index.ts:3](https://github.com/VitorLuizC/typescript-library-boilerplate/blob/b44a20e/src/index.ts#L3)
-
-___
-
-### XmlEntityOpts
-
-Ƭ **XmlEntityOpts**: `Object`
-
-#### Type declaration
-
-| Name | Type |
-| :------ | :------ |
-| `name?` | `string` |
-| `xmlns?` | `string` |
-
-#### Defined in
-
-[index.ts:7](https://github.com/VitorLuizC/typescript-library-boilerplate/blob/b44a20e/src/index.ts#L7)
+[index.ts:3](https://github.com/Edgar-P-yan/xml-class-transformer/blob/14820b5/src/index.ts#L3)
 
 ___
 
@@ -64,13 +47,13 @@ ___
 
 #### Defined in
 
-[index.ts:5](https://github.com/VitorLuizC/typescript-library-boilerplate/blob/b44a20e/src/index.ts#L5)
+[index.ts:5](https://github.com/Edgar-P-yan/xml-class-transformer/blob/14820b5/src/index.ts#L5)
 
 ## Functions
 
 ### XmlEntity
 
-▸ **XmlEntity**(`opts`): `ClassDecorator`
+▸ **XmlEntity**(`opts?`): `ClassDecorator`
 
 Class decorator
 
@@ -78,7 +61,7 @@ Class decorator
 
 | Name | Type |
 | :------ | :------ |
-| `opts` | [`XmlEntityOpts`](README.md#xmlentityopts) |
+| `opts?` | [`XmlEntityOptions`](interfaces/XmlEntityOptions.md) |
 
 #### Returns
 
@@ -86,7 +69,7 @@ Class decorator
 
 #### Defined in
 
-[index.ts:36](https://github.com/VitorLuizC/typescript-library-boilerplate/blob/b44a20e/src/index.ts#L36)
+[index.ts:96](https://github.com/Edgar-P-yan/xml-class-transformer/blob/14820b5/src/index.ts#L96)
 
 ___
 
@@ -100,7 +83,7 @@ Class property decorator
 
 | Name | Type |
 | :------ | :------ |
-| `opts` | [`XmlPropertyOpts`](interfaces/XmlPropertyOpts.md) |
+| `opts` | [`XmlPropertyOptions`](interfaces/XmlPropertyOptions.md) |
 
 #### Returns
 
@@ -108,7 +91,7 @@ Class property decorator
 
 #### Defined in
 
-[index.ts:58](https://github.com/VitorLuizC/typescript-library-boilerplate/blob/b44a20e/src/index.ts#L58)
+[index.ts:126](https://github.com/Edgar-P-yan/xml-class-transformer/blob/14820b5/src/index.ts#L126)
 
 ___
 
@@ -129,7 +112,7 @@ ___
 
 #### Defined in
 
-[index.ts:211](https://github.com/VitorLuizC/typescript-library-boilerplate/blob/b44a20e/src/index.ts#L211)
+[index.ts:281](https://github.com/Edgar-P-yan/xml-class-transformer/blob/14820b5/src/index.ts#L281)
 
 ___
 
@@ -156,4 +139,4 @@ ___
 
 #### Defined in
 
-[index.ts:80](https://github.com/VitorLuizC/typescript-library-boilerplate/blob/b44a20e/src/index.ts#L80)
+[index.ts:150](https://github.com/Edgar-P-yan/xml-class-transformer/blob/14820b5/src/index.ts#L150)

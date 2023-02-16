@@ -1,5 +1,5 @@
 /*!
- * xml-class-transformer v0.0.0
+ * xml-class-transformer v0.0.1
  * (c) Edgar Pogosyan
  * Released under the MIT License.
  */
@@ -20,7 +20,11 @@ const registry = new Map();
  */
 function XmlEntity(opts) {
     return (target) => {
+        opts = opts || {};
         opts.name = opts.name || target.name;
+        if (!opts.name) {
+            throw new Error(`Failed to get the element name for class ${target}. Specify it with @XmlEntity({ name: '...' }) decorator.`);
+        }
         const metadata = registry.get(target);
         if (metadata) {
             metadata.entity = opts;
@@ -39,6 +43,7 @@ function XmlEntity(opts) {
  */
 function XmlProperty(opts) {
     return (target, propertyKey) => {
+        opts.name === opts.name || propertyKey;
         if (typeof propertyKey !== 'string') {
             throw new TypeError(`Can't use @XmlProperty({...}) decorator on symbol property at ${target.constructor.name}#${propertyKey.toString()}`);
         }
