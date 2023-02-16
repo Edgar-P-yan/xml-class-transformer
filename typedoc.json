@@ -1,0 +1,7 @@
+{
+  "out": "./docs",
+  "name": "xml-class-transformer",
+  "theme": "markdown",
+  "readme": "none",
+  "tsconfig": "./tsconfig.bundle.json"
+}
