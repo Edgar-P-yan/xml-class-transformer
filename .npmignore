@@ -1,0 +1,17 @@
+.editorconfig
+.eslintignore
+.eslintrc.js
+.gitattributes
+.github
+.gitignore
+.prettierignore
+README.md
+coverage
+/docs
+/src
+jest.config.js
+prettier.config.js
+rollup.config.mjs
+tsconfig.bundle.json
+tsconfig.json
+typedoc.json

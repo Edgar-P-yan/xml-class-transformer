@@ -97,6 +97,32 @@ describe('xml-class-transformer', () => {
     );
   });
 
+  it('serializes ListAllMyBucketsResult without doctype', () => {
+    const d = new ListAllMyBucketsResult({
+      Buckets: new Buckets({
+        Bucket: [
+          new Bucket({
+            Name: 'bucket.name',
+            CreationDate: 'bucket.createdAt.toISOString()',
+          }),
+          new Bucket({
+            Name: 'bucket.name',
+            CreationDate: 'bucket.createdAt.toISOString()',
+          }),
+        ],
+      }),
+    });
+
+    const xml = classToXml(d, { declaration: false });
+
+    expect(xml).eq(
+      `<ListAllMyBucketsResult><Buckets>` +
+        `<Bucket><Name>bucket.name</Name><CreationDate>bucket.createdAt.toISOString()</CreationDate></Bucket>` +
+        `<Bucket><Name>bucket.name</Name><CreationDate>bucket.createdAt.toISOString()</CreationDate></Bucket>` +
+        `</Buckets></ListAllMyBucketsResult>`,
+    );
+  });
+
   it('serializes ListAllMyBucketsResult without initing nested classes', () => {
     const d = new ListAllMyBucketsResult({
       Buckets: new Buckets({

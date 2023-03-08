@@ -155,10 +155,19 @@ function getTextForElem(el) {
 }
 function classToXml(entity, options) {
     const tree = buildXmlFromClassInternal(entity, '', entity.constructor);
-    return xmljs.js2xml({
-        declaration: { attributes: { version: '1.0', encoding: 'UTF-8' } },
-        elements: [tree],
-    }, options);
+    const rootElem = { elements: [tree] };
+    if ((options === null || options === void 0 ? void 0 : options.declaration) !== false) {
+        if (typeof (options === null || options === void 0 ? void 0 : options.declaration) === 'object' &&
+            (options === null || options === void 0 ? void 0 : options.declaration) !== null) {
+            rootElem.declaration = options.declaration;
+        }
+        else {
+            rootElem.declaration = {
+                attributes: { version: '1.0', encoding: 'UTF-8' },
+            };
+        }
+    }
+    return xmljs.js2xml(rootElem, options);
 }
 function buildXmlFromClassInternal(entity, name, entityConstructor) {
     if ([String, Number, Boolean].includes(entityConstructor)) {

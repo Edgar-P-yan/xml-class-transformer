@@ -1,4 +1,5 @@
 import xmljs from 'xml-js';
+import type { DeclarationAttributes } from 'xml-js';
 export type AnyClass = {
     new (): any;
 };
@@ -84,5 +85,14 @@ export declare function XmlEntity(opts?: XmlEntityOptions): ClassDecorator;
  */
 export declare function XmlProperty(opts: XmlPropertyOptions): PropertyDecorator;
 export declare function xmlToClass<T extends AnyClass>(xml: string, _class: T): InstanceType<T>;
-export declare function classToXml(entity: any, options?: xmljs.Options.JS2XML): string;
+export interface ClassToXmlOptions extends xmljs.Options.JS2XML {
+    /**
+     * Whether to include the default declaration line `<?xml version="1.0" encoding="UTF-8"?>` or not.
+     * @default true
+     */
+    declaration?: boolean | {
+        attributes?: DeclarationAttributes;
+    };
+}
+export declare function classToXml(entity: any, options?: ClassToXmlOptions): string;
 //# sourceMappingURL=index.d.ts.map

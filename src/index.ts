@@ -1,4 +1,5 @@
 import xmljs from 'xml-js';
+import type { DeclarationAttributes } from 'xml-js';
 
 export type AnyClass = { new (): any };
 
@@ -278,19 +279,37 @@ function getTextForElem(el: xmljs.Element): string | undefined {
   return el.elements?.find((e) => e.type === 'text')?.text as string;
 }
 
-export function classToXml(
-  entity: any,
-  options?: xmljs.Options.JS2XML,
-): string {
+export interface ClassToXmlOptions extends xmljs.Options.JS2XML {
+  /**
+   * Whether to include the default declaration line `<?xml version="1.0" encoding="UTF-8"?>` or not.
+   * @default true
+   */
+  declaration?:
+    | boolean
+    | {
+        attributes?: DeclarationAttributes;
+      };
+}
+
+export function classToXml(entity: any, options?: ClassToXmlOptions): string {
   const tree = buildXmlFromClassInternal(entity, '', entity.constructor);
 
-  return xmljs.js2xml(
-    {
-      declaration: { attributes: { version: '1.0', encoding: 'UTF-8' } },
-      elements: [tree],
-    },
-    options,
-  );
+  const rootElem: xmljs.Element = { elements: [tree] };
+
+  if (options?.declaration !== false) {
+    if (
+      typeof options?.declaration === 'object' &&
+      options?.declaration !== null
+    ) {
+      rootElem.declaration = options.declaration;
+    } else {
+      rootElem.declaration = {
+        attributes: { version: '1.0', encoding: 'UTF-8' },
+      };
+    }
+  }
+
+  return xmljs.js2xml(rootElem, options);
 }
 
 function buildXmlFromClassInternal(

@@ -6,6 +6,7 @@ xml-class-transformer
 
 ### Interfaces
 
+- [ClassToXmlOptions](interfaces/ClassToXmlOptions.md)
 - [XmlEntityOptions](interfaces/XmlEntityOptions.md)
 - [XmlPropertyOptions](interfaces/XmlPropertyOptions.md)
 
@@ -37,7 +38,7 @@ xml-class-transformer
 
 #### Defined in
 
-[index.ts:3](https://github.com/Edgar-P-yan/xml-class-transformer/blob/14820b5/src/index.ts#L3)
+[src/index.ts:4](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L4)
 
 ___
 
@@ -47,7 +48,7 @@ ___
 
 #### Defined in
 
-[index.ts:5](https://github.com/Edgar-P-yan/xml-class-transformer/blob/14820b5/src/index.ts#L5)
+[src/index.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L6)
 
 ## Functions
 
@@ -69,7 +70,7 @@ Class decorator
 
 #### Defined in
 
-[index.ts:96](https://github.com/Edgar-P-yan/xml-class-transformer/blob/14820b5/src/index.ts#L96)
+[src/index.ts:97](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L97)
 
 ___
 
@@ -91,7 +92,7 @@ Class property decorator
 
 #### Defined in
 
-[index.ts:126](https://github.com/Edgar-P-yan/xml-class-transformer/blob/14820b5/src/index.ts#L126)
+[src/index.ts:127](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L127)
 
 ___
 
@@ -104,7 +105,7 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `entity` | `any` |
-| `options?` | `JS2XML` |
+| `options?` | [`ClassToXmlOptions`](interfaces/ClassToXmlOptions.md) |
 
 #### Returns
 
@@ -112,7 +113,7 @@ ___
 
 #### Defined in
 
-[index.ts:281](https://github.com/Edgar-P-yan/xml-class-transformer/blob/14820b5/src/index.ts#L281)
+[src/index.ts:294](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L294)
 
 ___
 
@@ -139,4 +140,4 @@ ___
 
 #### Defined in
 
-[index.ts:150](https://github.com/Edgar-P-yan/xml-class-transformer/blob/14820b5/src/index.ts#L150)
+[src/index.ts:151](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L151)
