@@ -23,7 +23,7 @@ Not compatible with `attr` and `chardata` options.
 
 #### Defined in
 
-[src/index.ts:38](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L38)
+[src/index.ts:38](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0641294/src/index.ts#L38)
 
 ___
 
@@ -35,7 +35,7 @@ If true, the property will be parsed and serialized as an attribute.
 
 #### Defined in
 
-[src/index.ts:52](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L52)
+[src/index.ts:52](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0641294/src/index.ts#L52)
 
 ___
 
@@ -77,7 +77,7 @@ classToXml(
 
 #### Defined in
 
-[src/index.ts:84](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L84)
+[src/index.ts:84](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0641294/src/index.ts#L84)
 
 ___
 
@@ -93,7 +93,7 @@ Not compatible with `chardata` options.
 
 #### Defined in
 
-[src/index.ts:47](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L47)
+[src/index.ts:47](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0641294/src/index.ts#L47)
 
 ___
 
@@ -119,4 +119,4 @@ You can also specify multiple classes, then the one whose name matches the eleme
 
 #### Defined in
 
-[src/index.ts:32](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L32)
+[src/index.ts:32](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0641294/src/index.ts#L32)

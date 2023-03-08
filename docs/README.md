@@ -38,7 +38,7 @@ xml-class-transformer
 
 #### Defined in
 
-[src/index.ts:4](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L4)
+[src/index.ts:4](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0641294/src/index.ts#L4)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 #### Defined in
 
-[src/index.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L6)
+[src/index.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0641294/src/index.ts#L6)
 
 ## Functions
 
@@ -70,7 +70,7 @@ Class decorator
 
 #### Defined in
 
-[src/index.ts:97](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L97)
+[src/index.ts:97](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0641294/src/index.ts#L97)
 
 ___
 
@@ -92,7 +92,7 @@ Class property decorator
 
 #### Defined in
 
-[src/index.ts:127](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L127)
+[src/index.ts:127](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0641294/src/index.ts#L127)
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 #### Defined in
 
-[src/index.ts:294](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L294)
+[src/index.ts:294](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0641294/src/index.ts#L294)
 
 ___
 
@@ -140,4 +140,4 @@ ___
 
 #### Defined in
 
-[src/index.ts:151](https://github.com/Edgar-P-yan/xml-class-transformer/blob/aa8e075/src/index.ts#L151)
+[src/index.ts:151](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0641294/src/index.ts#L151)
