@@ -1,17 +1,38 @@
+# Editor configs.
 .editorconfig
+.idea
+.vscode
+
+# Linters and formatters.
+.jscsrc
+.jshintrc
 .eslintignore
-.eslintrc.js
-.gitattributes
-.github
-.gitignore
+.eslintrc*
 .prettierignore
-README.md
-coverage
-/docs
-/src
-jest.config.js
 prettier.config.js
+
+# Source.
+/src
+
+# Docs.
+/docs
+typedoc.json
+
+# Tests.
+coverage
+jest.config.js
+**/*.test.ts
+
+# Build configs.
 rollup.config.mjs
 tsconfig.bundle.json
 tsconfig.json
-typedoc.json
+
+# Log files.
+*.log
+*.log.*
+
+# Others.
+.gitattributes
+.gitignore
+.github

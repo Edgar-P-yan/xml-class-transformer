@@ -14,51 +14,40 @@ function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'defau
 
 var xmljs__default = /*#__PURE__*/_interopDefaultLegacy(xmljs);
 
-const registry = new Map();
-/**
- * Class decorator
- */
-function XmlEntity(opts) {
-    return (target) => {
-        opts = opts || {};
-        opts.name = opts.name || target.name;
-        if (!opts.name) {
-            throw new Error(`Failed to get the element name for class ${target}. Specify it with @XmlEntity({ name: '...' }) decorator.`);
-        }
-        const metadata = registry.get(target);
+class ClassMetadataRegistry {
+    constructor() {
+        this.registry = new Map();
+    }
+    setEntityOptions(clazz, opts) {
+        const metadata = this.registry.get(clazz);
         if (metadata) {
             metadata.entity = opts;
         }
         else {
-            registry.set(target, {
+            this.registry.set(clazz, {
                 entity: opts,
                 properties: new Map(),
             });
         }
-        return target;
-    };
-}
-/**
- * Class property decorator
- */
-function XmlProperty(opts) {
-    return (target, propertyKey) => {
-        opts.name === opts.name || propertyKey;
-        if (typeof propertyKey !== 'string') {
-            throw new TypeError(`Can't use @XmlProperty({...}) decorator on symbol property at ${target.constructor.name}#${propertyKey.toString()}`);
-        }
-        const metadata = registry.get(target.constructor);
+    }
+    setPropertyOptions(clazz, propertyKey, opts) {
+        const metadata = this.registry.get(clazz);
         if (metadata) {
             metadata.properties.set(propertyKey, opts);
         }
         else {
-            registry.set(target.constructor, {
+            this.registry.set(clazz, {
                 properties: new Map([[propertyKey, opts]]),
                 entity: {},
             });
         }
-    };
+    }
+    get(clazz) {
+        return this.registry.get(clazz);
+    }
 }
+const registry = new ClassMetadataRegistry();
+
 function xmlToClass(xml, _class) {
     var _a;
     const parsed = xmljs__default["default"].xml2js(xml, {
@@ -162,7 +151,7 @@ function getTextForElem(el) {
     return (_b = (_a = el.elements) === null || _a === void 0 ? void 0 : _a.find((e) => e.type === 'text')) === null || _b === void 0 ? void 0 : _b.text;
 }
 function classToXml(entity, options) {
-    const tree = buildXmlFromClassInternal(entity, '', entity.constructor);
+    const tree = classToXmlInternal(entity, '', entity.constructor);
     const rootElem = { elements: [tree] };
     if ((options === null || options === void 0 ? void 0 : options.declaration) !== false) {
         if (typeof (options === null || options === void 0 ? void 0 : options.declaration) === 'object' &&
@@ -177,7 +166,7 @@ function classToXml(entity, options) {
     }
     return xmljs__default["default"].js2xml(rootElem, options);
 }
-function buildXmlFromClassInternal(entity, name, entityConstructor) {
+function classToXmlInternal(entity, name, entityConstructor) {
     if ([String, Number, Boolean].includes(entityConstructor)) {
         const text = entity === null ? '' : entity === null || entity === void 0 ? void 0 : entity.toString();
         return {
@@ -227,17 +216,17 @@ function buildXmlFromClassInternal(entity, name, entityConstructor) {
                 const classConstructor = Array.isArray(opts.type)
                     ? e.constructor
                     : opts.type;
-                children.push(buildXmlFromClassInternal(e, opts.name, classConstructor));
+                children.push(classToXmlInternal(e, opts.name, classConstructor));
             });
         }
         else if ([String, Number, Boolean].includes(opts.type)) {
             if (!opts.name) {
                 throw new Error(`No name is specified for property ${classKey}. Specify it with @XmlProperty({ name: '...' }) decorator.`);
             }
-            children.push(buildXmlFromClassInternal(entity[opts.name], opts.name, opts.type));
+            children.push(classToXmlInternal(entity[opts.name], opts.name, opts.type));
         }
         else {
-            children.push(buildXmlFromClassInternal(entity[classKey], opts.name, opts.type));
+            children.push(classToXmlInternal(entity[classKey], opts.name, opts.type));
         }
     });
     if (meta.entity.xmlns) {
@@ -252,6 +241,33 @@ function buildXmlFromClassInternal(entity, name, entityConstructor) {
 }
 function errUnknownClass(classConstructor) {
     return new Error(`Class ${classConstructor} not found. Make sure there is @XmlEntity({...}) decorator on it, or @XmlProperty({...}) decorator on its properties.`);
+}
+
+/**
+ * Class decorator
+ */
+function XmlEntity(opts) {
+    return (target) => {
+        opts = opts || {};
+        opts.name = opts.name || target.name;
+        if (!opts.name) {
+            throw new Error(`Failed to get the element name for class ${target}. Specify it with @XmlEntity({ name: '...' }) decorator.`);
+        }
+        registry.setEntityOptions(target, opts);
+        return target;
+    };
+}
+/**
+ * Class property decorator
+ */
+function XmlProperty(opts) {
+    return (target, propertyKey) => {
+        opts.name === opts.name || propertyKey;
+        if (typeof propertyKey !== 'string') {
+            throw new TypeError(`Can't use @XmlProperty({...}) decorator on symbol property at ${target.constructor.name}#${propertyKey.toString()}`);
+        }
+        registry.setPropertyOptions(target.constructor, propertyKey, opts);
+    };
 }
 
 exports.XmlEntity = XmlEntity;

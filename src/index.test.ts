@@ -186,8 +186,6 @@ describe('xml-class-transformer', () => {
 
     const result = xmlToClass(xml, ListVersions);
 
-    console.log(result);
-
     expect(result).deep.eq({
       Versions: [
         {
