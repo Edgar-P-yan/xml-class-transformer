@@ -1,6 +1,6 @@
 {
   "name": "xml-class-transformer",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Fluently parse XML into beautiful JS/TS classes and serialize them. GoLang's encoding/xml alternative for JS/TS world.",
   "cdn": "dist/index.umd.js",
   "main": "dist/index.js",
@@ -49,6 +49,10 @@
     "build": "rollup --config ./rollup.config.mjs",
     "prepublishOnly": "npm run doc && npm run lint && npm run test && npm run build"
   },
+  "files": [
+    "dist/",
+    "types/"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Edgar-P-Yan/xml-class-transformer.git"

@@ -1,5 +1,5 @@
 /*!
- * xml-class-transformer v0.0.4
+ * xml-class-transformer v0.0.5
  * (c) Edgar Pogosyan
  * Released under the MIT License.
  */
