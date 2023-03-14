@@ -16,6 +16,7 @@ prettier.config.js
 
 # Docs.
 /docs
+/examples
 typedoc.json
 
 # Tests.

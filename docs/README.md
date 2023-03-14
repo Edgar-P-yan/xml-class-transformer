@@ -38,7 +38,7 @@ xml-class-transformer
 
 #### Defined in
 
-src/types.ts:3
+[src/types.ts:3](https://github.com/Edgar-P-yan/xml-class-transformer/blob/4651f38/src/types.ts#L3)
 
 ___
 
@@ -48,7 +48,7 @@ ___
 
 #### Defined in
 
-src/types.ts:5
+[src/types.ts:5](https://github.com/Edgar-P-yan/xml-class-transformer/blob/4651f38/src/types.ts#L5)
 
 ## Functions
 
@@ -70,7 +70,7 @@ Class decorator
 
 #### Defined in
 
-src/decorators.ts:7
+[src/decorators.ts:7](https://github.com/Edgar-P-yan/xml-class-transformer/blob/4651f38/src/decorators.ts#L7)
 
 ___
 
@@ -92,7 +92,7 @@ Class property decorator
 
 #### Defined in
 
-src/decorators.ts:28
+[src/decorators.ts:28](https://github.com/Edgar-P-yan/xml-class-transformer/blob/4651f38/src/decorators.ts#L28)
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 #### Defined in
 
-src/xml-class-transformer.ts:136
+[src/xml-class-transformer.ts:136](https://github.com/Edgar-P-yan/xml-class-transformer/blob/4651f38/src/xml-class-transformer.ts#L136)
 
 ___
 
@@ -140,4 +140,4 @@ ___
 
 #### Defined in
 
-src/xml-class-transformer.ts:5
+[src/xml-class-transformer.ts:5](https://github.com/Edgar-P-yan/xml-class-transformer/blob/4651f38/src/xml-class-transformer.ts#L5)
