@@ -59,7 +59,7 @@ console.log(parsedArticle); // Article { title: 'Article 1', content: 'content 1
 
 ## Table of Contents
 
-- [What is this](#what-is-this)
+- [Why?](#why)
 - [Parsing XML to class](#parsing-xml-to-class)
 - [Serializing class to XML](#serializing-class-to-xml)
 - [Examples](#examples)
@@ -67,7 +67,7 @@ console.log(parsedArticle); // Article { title: 'Article 1', content: 'content 1
 - [API Documentation](#api-documentation)
 - [License](#license)
 
-## What is this
+## Why?
 
 The need for a library like this was huge for one of the projects with an XML API I was working for. For a huge time i was searching for a beautiful was to represent data in XML, parse them, validate, without dealing with does hairy and messed up XML parsers. I was drooling over the GoLang's `encoding/xml` implementation with their struct tags, and came up with this idea of using classes with decorators.
 
