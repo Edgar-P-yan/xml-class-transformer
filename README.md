@@ -51,15 +51,24 @@ console.log(parsedArticle); // Article { title: 'Article 1', content: 'content 1
 ## Features
 
 - Declarative and easy TypeScript decorators
-- XML Arrays (including arrays where elements are one of specified)
-- Attributes
-- XML Declaration
-- Composite nested structures
+- XML Arrays, including arrays with union types (e.g. `@XmlProperty({ type: [Employee, Manager], array: true }) users: (Employee | Manager)[]`)
+- XML Attributes
+- XML Declarations (`<?xml version="1.0" encoding="UTF-8"?>`)
+- Composite and nested structures
 - Transformation and validation (with `class-transformer` and `class-validator`)
+
+## Upcoming features
+
+These are features for more uncommon usage, most projects will not need them, but I
+might add support for them in the future.
+
+- Comments Support
+- CDATA Support
+- XML Namespaces
 
 ## Table of Contents
 
-- [What is this](#what-is-this)
+- [Why?](#why)
 - [Parsing XML to class](#parsing-xml-to-class)
 - [Serializing class to XML](#serializing-class-to-xml)
 - [Examples](#examples)
@@ -67,7 +76,7 @@ console.log(parsedArticle); // Article { title: 'Article 1', content: 'content 1
 - [API Documentation](#api-documentation)
 - [License](#license)
 
-## What is this
+## Why?
 
 The need for a library like this was huge for one of the projects with an XML API I was working for. For a huge time i was searching for a beautiful was to represent data in XML, parse them, validate, without dealing with does hairy and messed up XML parsers. I was drooling over the GoLang's `encoding/xml` implementation with their struct tags, and came up with this idea of using classes with decorators.
 
@@ -149,7 +158,7 @@ This module has an UMD bundle available through JSDelivr and Unpkg CDNs.
 
 <script>
   // UMD module is exposed through the "xml-class-transformer" global variable.
-  console.log(xml-class-transformer);
+  console.log(window['xml-class-transformer']);
 </script>
 ```
 
