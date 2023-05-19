@@ -1,5 +1,5 @@
 /*!
- * xml-class-transformer v0.0.5
+ * xml-class-transformer v0.1.0
  * (c) Edgar Pogosyan
  * Released under the MIT License.
  */
@@ -23,15 +23,28 @@ class ClassMetadataRegistry {
         }
     }
     setPropertyOptions(clazz, propertyKey, opts) {
-        const metadata = this.registry.get(clazz);
-        if (metadata) {
-            metadata.properties.set(propertyKey, opts);
+        const metadata = this.getOrCreate(clazz);
+        if (opts.name) {
+            for (const [searchingPropKey, searchingOpts] of metadata.properties) {
+                if (searchingOpts.name === opts.name) {
+                    throw new Error(`xml-class-transformer: can't use XML element name defined in { name: ${JSON.stringify(opts.name)} } for ${clazz.name}#${propertyKey} since it's already used for ${clazz.name}#${searchingPropKey}. Change it to something else.`);
+                }
+            }
+        }
+        metadata.properties.set(propertyKey, opts);
+    }
+    getOrCreate(clazz) {
+        const existing = this.registry.get(clazz);
+        if (existing) {
+            return existing;
         }
         else {
-            this.registry.set(clazz, {
-                properties: new Map([[propertyKey, opts]]),
+            const newMetadatas = {
                 entity: {},
-            });
+                properties: new Map(),
+            };
+            this.registry.set(clazz, newMetadatas);
+            return newMetadatas;
         }
     }
     get(clazz) {

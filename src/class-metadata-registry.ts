@@ -26,14 +26,38 @@ export class ClassMetadataRegistry {
     propertyKey: string,
     opts: XmlPropertyOptions,
   ): void {
-    const metadata = this.registry.get(clazz);
-    if (metadata) {
-      metadata.properties.set(propertyKey, opts);
+    const metadata = this.getOrCreate(clazz);
+
+    if (opts.name) {
+      for (const [searchingPropKey, searchingOpts] of metadata.properties) {
+        if (searchingOpts.name === opts.name) {
+          throw new Error(
+            `xml-class-transformer: can't use XML element name defined in { name: ${JSON.stringify(
+              opts.name,
+            )} } for ${clazz.name}#${propertyKey} since it's already used for ${
+              clazz.name
+            }#${searchingPropKey}. Change it to something else.`,
+          );
+        }
+      }
+    }
+
+    metadata.properties.set(propertyKey, opts);
+  }
+
+  private getOrCreate(clazz: AnyClass): ClassMetadatas {
+    const existing = this.registry.get(clazz);
+    if (existing) {
+      return existing;
     } else {
-      this.registry.set(clazz, {
-        properties: new Map([[propertyKey, opts]]),
+      const newMetadatas: ClassMetadatas = {
         entity: {},
-      });
+        properties: new Map(),
+      };
+
+      this.registry.set(clazz, newMetadatas);
+
+      return newMetadatas;
     }
   }
 

@@ -224,4 +224,22 @@ describe('xml-class-transformer', () => {
         `</ListVersions>`,
     );
   });
+
+  it('throws error if the same xml name is specified', () => {
+    expect(() => {
+      // @ts-expect-error
+      class Article {
+        @XmlProperty({ name: 'Title', type: String })
+        Title: string;
+
+        @XmlProperty({ name: 'Title', type: String })
+        Author: string;
+      }
+    }).to.throw(
+      Error,
+      `xml-class-transformer: can't use XML element name defined ` +
+        `in { name: "Title" } for Article#Author since it's already used for Article#Title. ` +
+        `Change it to something else.`,
+    );
+  });
 });
