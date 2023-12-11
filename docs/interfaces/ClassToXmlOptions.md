@@ -273,7 +273,7 @@ true
 
 #### Defined in
 
-[src/types.ts:130](https://github.com/Edgar-P-yan/xml-class-transformer/blob/9de5edc/src/types.ts#L130)
+[src/types.ts:130](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/types.ts#L130)
 
 ___
 

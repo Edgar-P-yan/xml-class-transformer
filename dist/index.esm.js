@@ -1,5 +1,5 @@
 /*!
- * xml-class-transformer v1.0.2
+ * xml-class-transformer v1.0.3
  * (c) Edgar Pogosyan
  * Released under the MIT License.
  */
@@ -349,6 +349,20 @@ function XmlEntity(opts) {
 function XmlProperty(opts) {
     return propertyDecoratorFactory('XmlProperty', opts);
 }
+/**
+ * Class property decorator.
+ * For more details on options see {@link XmlAttributeOptions}
+ *
+ * @example
+ * // a basic example
+ * class SomeXmlElement {
+ *   *XmlAttribute({ name: 'attributeName', type: String })
+ *   attributeName: string;
+ * }
+ */
+function XmlAttribute(opts) {
+    return propertyDecoratorFactory('XmlAttribute', Object.assign(Object.assign({}, opts), { attr: true }));
+}
 function propertyDecoratorFactory(decoratorName, opts) {
     return (target, propertyKey) => {
         if (typeof propertyKey !== 'string') {
@@ -393,5 +407,5 @@ function propertyDecoratorFactory(decoratorName, opts) {
     };
 }
 
-export { XmlEntity, XmlProperty, classToXml, xmlToClass };
+export { XmlAttribute, XmlEntity, XmlProperty, classToXml, xmlToClass };
 //# sourceMappingURL=index.esm.js.map

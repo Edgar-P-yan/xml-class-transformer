@@ -17,6 +17,7 @@ xml-class-transformer
 
 ### Functions
 
+- [XmlAttribute](README.md#xmlattribute)
 - [XmlEntity](README.md#xmlentity)
 - [XmlProperty](README.md#xmlproperty)
 - [classToXml](README.md#classtoxml)
@@ -38,7 +39,7 @@ xml-class-transformer
 
 #### Defined in
 
-[src/types.ts:3](https://github.com/Edgar-P-yan/xml-class-transformer/blob/9de5edc/src/types.ts#L3)
+[src/types.ts:3](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/types.ts#L3)
 
 ___
 
@@ -48,9 +49,42 @@ ___
 
 #### Defined in
 
-[src/types.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/9de5edc/src/types.ts#L6)
+[src/types.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/types.ts#L6)
 
 ## Functions
+
+### XmlAttribute
+
+▸ **XmlAttribute**(`opts`): `PropertyDecorator`
+
+Class property decorator.
+For more details on options see XmlAttributeOptions
+
+**`Example`**
+
+```ts
+// a basic example
+class SomeXmlElement {
+  *XmlAttribute({ name: 'attributeName', type: String })
+  attributeName: string;
+}
+```
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `opts` | `XmlAttributeOptions` |
+
+#### Returns
+
+`PropertyDecorator`
+
+#### Defined in
+
+[src/decorators.ts:48](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/decorators.ts#L48)
+
+___
 
 ### XmlEntity
 
@@ -70,7 +104,7 @@ Class decorator
 
 #### Defined in
 
-[src/decorators.ts:12](https://github.com/Edgar-P-yan/xml-class-transformer/blob/9de5edc/src/decorators.ts#L12)
+[src/decorators.ts:12](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/decorators.ts#L12)
 
 ___
 
@@ -92,7 +126,7 @@ Class property decorator.
 
 #### Defined in
 
-[src/decorators.ts:33](https://github.com/Edgar-P-yan/xml-class-transformer/blob/9de5edc/src/decorators.ts#L33)
+[src/decorators.ts:33](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/decorators.ts#L33)
 
 ___
 
@@ -113,7 +147,7 @@ ___
 
 #### Defined in
 
-[src/transform-class-to-xml.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/9de5edc/src/transform-class-to-xml.ts#L6)
+[src/transform-class-to-xml.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/transform-class-to-xml.ts#L6)
 
 ___
 
@@ -140,4 +174,4 @@ ___
 
 #### Defined in
 
-[src/transform-xml-to-class.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/9de5edc/src/transform-xml-to-class.ts#L6)
+[src/transform-xml-to-class.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/transform-xml-to-class.ts#L6)
