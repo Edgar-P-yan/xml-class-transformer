@@ -3,10 +3,10 @@ import {
   AnyClass,
   classToXml,
   XmlEntity,
+  XmlAttribute,
   XmlProperty,
   xmlToClass,
 } from './index';
-import { XmlAttribute } from './decorators';
 
 @XmlEntity({ name: 'Bucket' })
 export class Bucket {
