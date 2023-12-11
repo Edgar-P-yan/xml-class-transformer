@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.2
+
+[Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v1.0.1...v1.0.2)
+
+- fix types for XmlAttributeOptions
+
 ## v1.0.1
 
 [Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v1.0.0...v1.0.1)
