@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.1
+
+[Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v1.0.0...v1.0.1)
+
+- fix README.md
+
 ## v1.0.0
 
 [Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v0.1.1...v1.0.0)
