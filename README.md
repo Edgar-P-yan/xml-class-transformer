@@ -35,27 +35,29 @@ class Article {
   @XmlProperty({ type: String, name: 'Content' })
   content: string;
 
-  constructor(d?: Version) {
+  constructor(d?: Article) {
     Object.assign(this, d || {});
   }
 }
 
 const parsedArticle: Article = xmlToClass(
-  `<Article><Title>Article 1</Title><Content>content 1</Content></Article>`,
-  Version,
+  `<Article><Title>Some title</Title><Content>The content of the article.</Content></Article>`,
+  Article,
 );
 
-console.log(parsedArticle); // Article { title: 'Article 1', content: 'content 1' }
+console.log(parsedArticle); // Article { title: 'Some title', content: 'The content of the article.' }
 ```
 
 ## Features
 
-- Declarative and easy TypeScript decorators
-- XML Arrays, including arrays with union types (e.g. `@XmlProperty({ type: [Employee, Manager], array: true }) users: (Employee | Manager)[]`)
-- XML Attributes
-- XML Declarations (`<?xml version="1.0" encoding="UTF-8"?>`)
-- Composite and nested structures
-- Transformation and validation (with `class-transformer` and `class-validator`)
+- Declarative and easy TypeScript decorators.
+- Union types (`@XmlProperty({ union: [Employee, Manager] }) user: Employee | Manager;`).
+- XML Arrays, including arrays with union types (e.g. `@XmlProperty({ type: [Employee, Manager], array: true }) users: (Employee | Manager)[]`).
+- XML Attributes.
+- XML Declarations (`<?xml version="1.0" encoding="UTF-8"?>`).
+- Battle-tested in production and unit coverage "> 80%".
+- Complex and nested structures.
+- Transformation and validation (with `class-transformer` and `class-validator`).
 
 ## Upcoming features
 
@@ -65,6 +67,9 @@ might add support for them in the future.
 - Comments Support
 - CDATA Support
 - XML Namespaces
+- Custom ordering
+- Multiple chardata entries with the support for specified ordering.
+- CLI tool for automatically generating class declaration out of an XML input. Something similar to what does [miku/zek](https://github.com/miku/zek) for GoLang.
 
 ## Table of Contents
 
@@ -72,6 +77,8 @@ might add support for them in the future.
 - [Parsing XML to class](#parsing-xml-to-class)
 - [Serializing class to XML](#serializing-class-to-xml)
 - [Examples](#examples)
+- [Details](#details)
+- [Changelog](#changelog)
 - [Installation from CDN](#installation-from-cdn)
 - [API Documentation](#api-documentation)
 - [License](#license)
@@ -144,6 +151,46 @@ console.log(serialized);
 ## Examples
 
 Take a look at the [examples](./examples).
+
+## Details
+
+XML is inherently not very programing-language friendly. It does not follow the common "structured" key-value approach of storing data. Because of that library developers like myself have to find some common ground between them. Generally details and pitfalls described here will not be needed to know of in ordinary projects with not too complex XML schemas. But in case if you have to thoroughly handle `null`s and `undefined`s then here you go ;)
+
+### null and undefined handling for primitives
+
+When serializing classes to xml all properties with `undefined` value will be excluded from the resulting xml. This is an intentional behaviour, and also in convinience with the behaviour of the `JSON.stringify` which also omits unidefined values. When serialing such XMLs with omitted tags back to classes, those omitted fields will have the same `undefined` value. So in general `undefined` values are straighforward to work with.
+
+On the other hand serializing `null` is a bit tricky: XMLs dont have such thing as null values. So we have to take some workaway: nulls for primitive types (string, number, boolean) will be serialized to empty chardata. For example this class:
+
+```ts
+class XmlNullProp {
+  @XmlProperty({ type: Number }) nullProp: number | null;
+  constructor(d?: XmlNullProp) {
+    Object.assign(this, d || {});
+  }
+}
+console.log(classToXml({ nullProp: null }));
+```
+
+will be serialized to:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?><TestEmptyArraysRoot/>
+```
+
+Same thing goes not only for numbers, but also for booleans and strings. When serilizing back, does XML tags with empty chardatas will be converted to properties with null values. But not for strings: strings are exception in the case of null handling: when converted from XML back to Classes null strings will be converted into empty strings. In general this is an acceptable behavior, because there is not really much of a choice.
+
+### null and undefined handling for objects
+
+For objects handling of nulls and undefined values are a bit different too: undefined for object types will be preserved when converted back to classes. However the situation with null objects is different: because of no way to serialize null objects, null objects will become `undefined` when converted back to classes.
+
+### null and undefined handling for arrays
+
+For arrays nulls and undefineds will become empty arrays. This is because XML inherently has no way to represent arrays, the closest functionality to that it can provide is to store multiple tags with the same name.
+
+## Changelog
+
+All the changelog is in the [CHANGELOG.md](./CHANGELOG.md) file
 
 ## Installation from CDN
 

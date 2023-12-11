@@ -1,4 +1,5 @@
-export { classToXml, xmlToClass } from './xml-class-transformer';
+export { classToXml } from './transform-class-to-xml';
+export { xmlToClass } from './transform-xml-to-class';
 
 export { XmlEntity, XmlProperty } from './decorators';
 

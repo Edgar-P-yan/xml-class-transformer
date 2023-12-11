@@ -28,3 +28,9 @@ pnpmfile.js
 # Log files.
 *.log
 *.log.*
+
+# Test coverage
+coverage
+
+# Personal editor settings
+.vscode/settings.json

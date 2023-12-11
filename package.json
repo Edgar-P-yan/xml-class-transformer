@@ -19,6 +19,18 @@
       "./dist/index.js"
     ]
   },
+  "homepage": "https://github.com/Edgar-P-Yan/xml-class-transformer#readme",
+  "scripts": {
+    "doc": "typedoc src/index.ts",
+    "test": "jest",
+    "lint": "eslint \"*/**/*.{ts,js,json}\"",
+    "lint:fix": "eslint \"*/**/*.{ts,js,json}\" --fix",
+    "build": "rollup --config ./rollup.config.mjs",
+    "prepublishOnly": "npm run doc && npm run lint && npm run test && npm run build"
+  },
+  "dependencies": {
+    "xml-js": "^1.6.11"
+  },
   "devDependencies": {
     "@types/chai": "^4.3.4",
     "@types/eslint": "^8.4.10",
@@ -41,14 +53,6 @@
     "typedoc-plugin-markdown": "^3.14.0",
     "typescript": "^4.9.4"
   },
-  "scripts": {
-    "doc": "typedoc src/index.ts",
-    "test": "jest",
-    "lint": "eslint \"*/**/*.{ts,js,json}\"",
-    "lint:fix": "eslint \"*/**/*.{ts,js,json}\" --fix",
-    "build": "rollup --config ./rollup.config.mjs",
-    "prepublishOnly": "npm run doc && npm run lint && npm run test && npm run build"
-  },
   "files": [
     "dist/",
     "types/"
@@ -64,9 +68,5 @@
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Edgar-P-Yan/xml-class-transformer/issues"
-  },
-  "homepage": "https://github.com/Edgar-P-Yan/xml-class-transformer#readme",
-  "dependencies": {
-    "xml-js": "^1.6.11"
   }
 }

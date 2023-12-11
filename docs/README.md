@@ -38,17 +38,17 @@ xml-class-transformer
 
 #### Defined in
 
-[src/types.ts:3](https://github.com/Edgar-P-yan/xml-class-transformer/blob/dbb06ad/src/types.ts#L3)
+[src/types.ts:3](https://github.com/Edgar-P-yan/xml-class-transformer/blob/c6cfd11/src/types.ts#L3)
 
 ___
 
 ### XmlType
 
-Ƭ **XmlType**: typeof `String` \| typeof `Number` \| typeof `Boolean` \| [`AnyClass`](README.md#anyclass)
+Ƭ **XmlType**: `XmlPrimitiveType` \| [`AnyClass`](README.md#anyclass)
 
 #### Defined in
 
-[src/types.ts:5](https://github.com/Edgar-P-yan/xml-class-transformer/blob/dbb06ad/src/types.ts#L5)
+[src/types.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/c6cfd11/src/types.ts#L6)
 
 ## Functions
 
@@ -70,7 +70,7 @@ Class decorator
 
 #### Defined in
 
-[src/decorators.ts:7](https://github.com/Edgar-P-yan/xml-class-transformer/blob/dbb06ad/src/decorators.ts#L7)
+[src/decorators.ts:12](https://github.com/Edgar-P-yan/xml-class-transformer/blob/c6cfd11/src/decorators.ts#L12)
 
 ___
 
@@ -78,7 +78,7 @@ ___
 
 ▸ **XmlProperty**(`opts`): `PropertyDecorator`
 
-Class property decorator
+Class property decorator.
 
 #### Parameters
 
@@ -92,7 +92,7 @@ Class property decorator
 
 #### Defined in
 
-[src/decorators.ts:28](https://github.com/Edgar-P-yan/xml-class-transformer/blob/dbb06ad/src/decorators.ts#L28)
+[src/decorators.ts:33](https://github.com/Edgar-P-yan/xml-class-transformer/blob/c6cfd11/src/decorators.ts#L33)
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 #### Defined in
 
-[src/xml-class-transformer.ts:136](https://github.com/Edgar-P-yan/xml-class-transformer/blob/dbb06ad/src/xml-class-transformer.ts#L136)
+src/transform-class-to-xml.ts:6
 
 ___
 
@@ -140,4 +140,4 @@ ___
 
 #### Defined in
 
-[src/xml-class-transformer.ts:5](https://github.com/Edgar-P-yan/xml-class-transformer/blob/dbb06ad/src/xml-class-transformer.ts#L5)
+src/transform-xml-to-class.ts:6

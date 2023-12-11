@@ -15,5 +15,5 @@
     "declarationDir": "types/",
     "declarationMap": true
   },
-  "exclude": ["./src/**/*.test.ts", "./src/**/*.test.tsx"]
+  "exclude": ["./src/**/*.test.ts", "./src/**/*.test.tsx", "./examples/**/*"]
 }

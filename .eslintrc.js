@@ -25,6 +25,7 @@ const options = {
     '@typescript-eslint/no-non-null-assertion': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
   },
+  ignorePatterns: ['node_modules', 'dist', 'docs', 'types', 'coverage'],
 };
 
 module.exports = options;

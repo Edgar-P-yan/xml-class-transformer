@@ -32,11 +32,21 @@ export class ClassMetadataRegistry {
       for (const [searchingPropKey, searchingOpts] of metadata.properties) {
         if (searchingOpts.name === opts.name) {
           throw new Error(
-            `xml-class-transformer: can't use XML element name defined in { name: ${JSON.stringify(
-              opts.name,
-            )} } for ${clazz.name}#${propertyKey} since it's already used for ${
-              clazz.name
-            }#${searchingPropKey}. Change it to something else.`,
+            `xml-class-transformer: can't use XML element name defined in ` +
+              `{ name: ${JSON.stringify(opts.name)} } for ` +
+              `${clazz.name}#${propertyKey} since it's already used for ` +
+              `${clazz.name}#${searchingPropKey}. Change it to something else.`,
+          );
+        }
+
+        // TODO: maybe support multiple chardata for multiple child text nodes inside an xml element.
+        // each of those chardata properties whould match the text node at the same position as the property itself.
+        // The same goes for not yet implemented comments and cdata.
+        if (opts.chardata && searchingOpts.chardata) {
+          throw new Error(
+            `xml-class-transformer: an XML element can have only one chardata property. ` +
+              `Both ${clazz.name}#${propertyKey} and ${clazz.name}#${searchingOpts.name} ` +
+              `are defined as chardata, which is not valid.`,
           );
         }
       }
@@ -51,7 +61,9 @@ export class ClassMetadataRegistry {
       return existing;
     } else {
       const newMetadatas: ClassMetadatas = {
-        entity: {},
+        entity: {
+          name: clazz?.name,
+        },
         properties: new Map(),
       };
 

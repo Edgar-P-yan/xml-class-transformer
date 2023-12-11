@@ -1,5 +1,10 @@
 import { registry } from './class-metadata-registry';
-import type { XmlEntityOptions, XmlPropertyOptions } from './types';
+import { serializeUnionForLog } from './common';
+import type {
+  XmlAttributeOptions,
+  XmlEntityOptions,
+  XmlPropertyOptions,
+} from './types';
 
 /**
  * Class decorator
@@ -12,7 +17,7 @@ export function XmlEntity(opts?: XmlEntityOptions): ClassDecorator {
 
     if (!opts.name) {
       throw new Error(
-        `Failed to get the element name for class ${target}. Specify it with @XmlEntity({ name: '...' }) decorator.`,
+        `xml-class-transformer: Failed to get the element name for class ${target}. Specify it with @XmlEntity({ name: '...' }) decorator.`,
       );
     }
 
@@ -23,17 +28,89 @@ export function XmlEntity(opts?: XmlEntityOptions): ClassDecorator {
 }
 
 /**
- * Class property decorator
+ * Class property decorator.
  */
 export function XmlProperty(opts: XmlPropertyOptions): PropertyDecorator {
-  return (target: { constructor: any }, propertyKey: string | symbol): void => {
-    opts.name === opts.name || propertyKey;
+  return propertyDecoratorFactory('XmlProperty', opts);
+}
 
+/**
+ * Class property decorator.
+ * For more details on options see {@link XmlAttributeOptions}
+ *
+ * @example
+ * // a basic example
+ * class SomeXmlElement {
+ *   *XmlAttribute({ name: 'attributeName', type: String })
+ *   attributeName: string;
+ * }
+ */
+export function XmlAttribute(opts: XmlAttributeOptions): PropertyDecorator {
+  return propertyDecoratorFactory('XmlAttribute', {
+    ...opts,
+    attr: true,
+  });
+}
+
+function propertyDecoratorFactory(
+  decoratorName: 'XmlAttribute' | 'XmlProperty',
+  opts: XmlPropertyOptions,
+): PropertyDecorator {
+  return (target: { constructor: any }, propertyKey: string | symbol): void => {
     if (typeof propertyKey !== 'string') {
+      // Dont support symbols for now
       throw new TypeError(
-        `Can't use @XmlProperty({...}) decorator on symbol property at ${
-          target.constructor.name
-        }#${propertyKey.toString()}`,
+        `xml-class-transformer: Can't use @${decoratorName}({...}) decorator on a symbol property ` +
+          `at ${target.constructor.name}#${propertyKey.toString()}`,
+      );
+    }
+
+    if (opts.union && opts.type) {
+      throw new TypeError(
+        `xml-class-transformer: The "union" option is not compatible with the "type" option at ` +
+          `${target.constructor.name}#${propertyKey.toString()}.`,
+      );
+    }
+
+    if (!opts.union && !opts.type) {
+      throw new TypeError(
+        `xml-class-transformer: No "type" or "union" was specified for the ` +
+          `${target.constructor.name}#${propertyKey.toString()}. Add it to ` +
+          `the @${decoratorName}({...}) decorator.`,
+      );
+    }
+
+    if (opts.union && !opts.union.length) {
+      throw new TypeError(
+        `xml-class-transformer: The "union" option in @${decoratorName}({ ... }) can't be empty ` +
+          `at ${target.constructor.name}#${propertyKey.toString()}.`,
+      );
+    }
+
+    if (opts.union) {
+      if (opts.name) {
+        throw new TypeError(
+          `xml-class-transformer: The "union" option is not compatible with the "name" option at ` +
+            `${target.constructor.name}#${propertyKey.toString()}. ` +
+            `XML element names for the union memebers should be specified at ` +
+            `the union memeber classes.`,
+        );
+      }
+    } else {
+      opts.name = opts.name || propertyKey;
+    }
+
+    if (
+      opts.union &&
+      (opts.union.includes(String) ||
+        opts.union.includes(Number) ||
+        opts.union.includes(Boolean))
+    ) {
+      throw new TypeError(
+        `xml-class-transformer: unions of primitive types (String, Number or Boolean) are not supported. ` +
+          `Fix it in the decorator @${decoratorName}({ ` +
+          `union: ${serializeUnionForLog(opts.union)}, ... }) ` +
+          `at "${target.constructor.name}#${propertyKey.toString()}".`,
       );
     }
 

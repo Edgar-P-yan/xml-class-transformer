@@ -11,6 +11,7 @@
 - [chardata](XmlPropertyOptions.md#chardata)
 - [name](XmlPropertyOptions.md#name)
 - [type](XmlPropertyOptions.md#type)
+- [union](XmlPropertyOptions.md#union)
 
 ## Properties
 
@@ -19,11 +20,11 @@
 • `Optional` **array**: `boolean`
 
 If true, the property will be parsed and serialized as an array.
-Not compatible with `attr` and `chardata` options.
+Not compatible with the `attr` and `chardata` options.
 
 #### Defined in
 
-[src/types.ts:37](https://github.com/Edgar-P-yan/xml-class-transformer/blob/dbb06ad/src/types.ts#L37)
+[src/types.ts:57](https://github.com/Edgar-P-yan/xml-class-transformer/blob/c6cfd11/src/types.ts#L57)
 
 ___
 
@@ -32,10 +33,11 @@ ___
 • `Optional` **attr**: `boolean`
 
 If true, the property will be parsed and serialized as an attribute.
+Not compatible with the `chardata` and `union` options.
 
 #### Defined in
 
-[src/types.ts:51](https://github.com/Edgar-P-yan/xml-class-transformer/blob/dbb06ad/src/types.ts#L51)
+[src/types.ts:72](https://github.com/Edgar-P-yan/xml-class-transformer/blob/c6cfd11/src/types.ts#L72)
 
 ___
 
@@ -44,40 +46,44 @@ ___
 • `Optional` **chardata**: `boolean`
 
 If true, the property will be parsed and serialized as a character data.
-Not compatible with `array` and `attr` options.
+Not compatible with the `name`, `union`, `array` and `attr` options.
 
 It's only useful when you parse elements with a text node and no attributes.
 
-**`Example`**
+**`Todo`**
+
+maybe we can make it work with primitive unions?
 
 ```ts
 *XmlEntity({ name: 'Comment' })
 class Comment {
- *XmlProperty({ chardata: true })
- text: string;
+  *XmlProperty({ chardata: true })
+  text: string;
 
- *XmlProperty({ name: 'lang', attr: true })
- lenguage: string;
+  *XmlProperty({ name: 'lang', attr: true })
+  lenguage: string;
 
- constructor(d?: Comment) {
-  Object.assign(this, d || {});
- }
+  constructor(d?: Comment) {
+    Object.assign(this, d || {});
+  }
 }
 
 classToXml(
- new Comment({
-   text: 'This is awesome',
-   lenguage: 'en',
- })
+  new Comment({
+    text: 'This is awesome',
+    lenguage: 'en',
+  }),
 )
+```
 
-// Output:
+Output:
+```xml
 <Comment lang="en">This is awesome</Comment>
 ```
 
 #### Defined in
 
-[src/types.ts:83](https://github.com/Edgar-P-yan/xml-class-transformer/blob/dbb06ad/src/types.ts#L83)
+[src/types.ts:109](https://github.com/Edgar-P-yan/xml-class-transformer/blob/c6cfd11/src/types.ts#L109)
 
 ___
 
@@ -87,36 +93,63 @@ ___
 
 XML element name.
 If not specified, the property name will be used.
-It is highly recommended to specify it explicitly.
+It is recommended to specify it explicitly for expressivenes.
 
-Not compatible with `chardata` options.
+Not compatible with the `chardata` option and the union types.
 
 #### Defined in
 
-[src/types.ts:46](https://github.com/Edgar-P-yan/xml-class-transformer/blob/dbb06ad/src/types.ts#L46)
+[src/types.ts:66](https://github.com/Edgar-P-yan/xml-class-transformer/blob/c6cfd11/src/types.ts#L66)
 
 ___
 
 ### type
 
-• **type**: [`XmlType`](../README.md#xmltype) \| [`XmlType`](../README.md#xmltype)[]
+• `Optional` **type**: [`XmlType`](../README.md#xmltype)
 
 Specify primitive type or class type for parsing and serializing.
 
 **`Example`**
 
-```ts
-{ type: String }
+{ type: Number }
+{ type: Boolean }
+{ type: CustomClass }
 
-You can also specify multiple classes, then the one whose name matches the element name will be selected.
-```
+Not compatible with the `union` option.
+
+#### Defined in
+
+[src/types.ts:33](https://github.com/Edgar-P-yan/xml-class-transformer/blob/c6cfd11/src/types.ts#L33)
+
+___
+
+### union
+
+• `Optional` **union**: [`XmlType`](../README.md#xmltype)[]
+
+You can also specify union types, then at the parsing time
+the one whose name matches the XML element name will be selected.
+The serialization of union types is performed in the same manner:
+the name of the class is used as the XML element name.
+
+Union types are not compatible with the `type`, `name` and `attr` options.
+It is not compatible with the `attr` option because bacause for now attribute values should
+only be primitive values, and parsing strings to unions can't be definitive.
+
+**`Todo`**
+
+test unions of primitive with class types
+
+**`Todo`**
+
+test unions of primitive types
 
 **`Example`**
 
 ```ts
-{ type: [Version, DeleteMarker] }
+{ union: [User, Admin] }
 ```
 
 #### Defined in
 
-[src/types.ts:31](https://github.com/Edgar-P-yan/xml-class-transformer/blob/dbb06ad/src/types.ts#L31)
+[src/types.ts:51](https://github.com/Edgar-P-yan/xml-class-transformer/blob/c6cfd11/src/types.ts#L51)
