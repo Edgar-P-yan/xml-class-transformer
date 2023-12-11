@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.3
+
+[Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v1.0.2...v1.0.3)
+
+- fix export of XmlAttribute
+
 ## v1.0.2
 
 [Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v1.0.1...v1.0.2)
