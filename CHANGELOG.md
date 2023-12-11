@@ -1,10 +1,23 @@
 # Changelog
 
+## v1.0.0
+
+[Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v0.1.1...v1.0.0)
+
+- consistent null and undefined values handling and docs about it.
+- consistent primitive values parsing, fixed floats.
+- fixed support for non-array unions.
+- unions are now specified with separate option "union".
+- more fail fasts with helpful error messages.
+- separate XmlAttribute decorator.
+- add CHANGELOG.md
+- internal: more test suits to test complex cases
+
 ## v0.1.1
 
 [Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v0.1.0...v0.1.1)
 
-- update README.md
+- update README.md.
 
 ## v0.1.0
 

@@ -24,7 +24,7 @@ Not compatible with the `attr` and `chardata` options.
 
 #### Defined in
 
-[src/types.ts:57](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b85d748/src/types.ts#L57)
+[src/types.ts:57](https://github.com/Edgar-P-yan/xml-class-transformer/blob/09b4b2d/src/types.ts#L57)
 
 ___
 
@@ -37,7 +37,7 @@ Not compatible with the `chardata` and `union` options.
 
 #### Defined in
 
-[src/types.ts:72](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b85d748/src/types.ts#L72)
+[src/types.ts:72](https://github.com/Edgar-P-yan/xml-class-transformer/blob/09b4b2d/src/types.ts#L72)
 
 ___
 
@@ -83,7 +83,7 @@ Output:
 
 #### Defined in
 
-[src/types.ts:109](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b85d748/src/types.ts#L109)
+[src/types.ts:109](https://github.com/Edgar-P-yan/xml-class-transformer/blob/09b4b2d/src/types.ts#L109)
 
 ___
 
@@ -99,7 +99,7 @@ Not compatible with the `chardata` option and the union types.
 
 #### Defined in
 
-[src/types.ts:66](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b85d748/src/types.ts#L66)
+[src/types.ts:66](https://github.com/Edgar-P-yan/xml-class-transformer/blob/09b4b2d/src/types.ts#L66)
 
 ___
 
@@ -119,7 +119,7 @@ Not compatible with the `union` option.
 
 #### Defined in
 
-[src/types.ts:33](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b85d748/src/types.ts#L33)
+[src/types.ts:33](https://github.com/Edgar-P-yan/xml-class-transformer/blob/09b4b2d/src/types.ts#L33)
 
 ___
 
@@ -152,4 +152,4 @@ test unions of primitive types
 
 #### Defined in
 
-[src/types.ts:51](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b85d748/src/types.ts#L51)
+[src/types.ts:51](https://github.com/Edgar-P-yan/xml-class-transformer/blob/09b4b2d/src/types.ts#L51)
