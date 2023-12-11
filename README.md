@@ -154,13 +154,13 @@ Take a look at the [examples](./examples).
 
 ## Details
 
-XML is inherently not very programing-language friendly. It does not follow the common "structured" key-value approach of storing data. Because of that library developers like myself have to find some common ground between them. Generally details and pitfalls described here will not be needed to know of in ordinary projects with not too complex XML schemas. But in case if you have to thoroughly handle `null`s and `undefined`s then here you go ;)
+XML is inherently not very programming-language friendly. It does not follow the common "structured" key-value approach of storing data. Because of that library developers like myself have to find some common ground between them. Generally details and pitfalls described here will not be needed to know of in ordinary projects with not too complex XML schemas. But in case if you have to thoroughly handle `null`s and `undefined`s then here you go ;)
 
 ### null and undefined handling for primitives
 
-When serializing classes to xml all properties with `undefined` value will be excluded from the resulting xml. This is an intentional behaviour, and also in convinience with the behaviour of the `JSON.stringify` which also omits unidefined values. When serialing such XMLs with omitted tags back to classes, those omitted fields will have the same `undefined` value. So in general `undefined` values are straighforward to work with.
+When serializing classes to xml all properties with `undefined` value will be excluded from the resulting xml. This is an intentional behaviour, and also in convenience with the behaviour of the `JSON.stringify` which also omits undefined values. When serializing such XMLs with omitted tags back to classes, those omitted fields will have the same `undefined` value. So in general `undefined` values are straightforward to work with.
 
-On the other hand serializing `null` is a bit tricky: XMLs dont have such thing as null values. So we have to take some workaway: nulls for primitive types (string, number, boolean) will be serialized to empty chardata. For example this class:
+On the other hand serializing `null` is a bit tricky: XMLs don't have such thing as null values. So we have to take some workaround: nulls for primitive types (string, number, boolean) will be serialized to empty chardata. For example this class:
 
 ```ts
 class XmlNullProp {
@@ -175,7 +175,7 @@ console.log(classToXml({ nullProp: null }));
 will be serialized to:
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?><TestEmptyArraysRoot/>
+<?xml version="1.0" encoding="UTF-8"?><XmlNullProp/>
 ```
 
 Same thing goes not only for numbers, but also for booleans and strings. When serilizing back, does XML tags with empty chardatas will be converted to properties with null values. But not for strings: strings are exception in the case of null handling: when converted from XML back to Classes null strings will be converted into empty strings. In general this is an acceptable behavior, because there is not really much of a choice.
@@ -186,7 +186,7 @@ For objects handling of nulls and undefined values are a bit different too: unde
 
 ### null and undefined handling for arrays
 
-For arrays nulls and undefineds will become empty arrays. This is because XML inherently has no way to represent arrays, the closest functionality to that it can provide is to store multiple tags with the same name.
+For arrays nulls and `undefined`s will become empty arrays. This is because XML inherently has no way to represent arrays, the closest functionality to that it can provide is to store multiple tags with the same name.
 
 ## Changelog
 
