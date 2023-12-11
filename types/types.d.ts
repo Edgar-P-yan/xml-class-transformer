@@ -100,7 +100,7 @@ export interface XmlPropertyOptions {
      */
     chardata?: boolean;
 }
-export interface XmlAttributeOptions extends Omit<XmlPropertyOptions, 'type' | 'attr' | 'chardata' | 'array'> {
+export interface XmlAttributeOptions extends Pick<XmlPropertyOptions, 'name'> {
     /**
      * XML Attributes can only be of primitive types.
      * Specify the primitive type for parsing and serializing the attribute.
