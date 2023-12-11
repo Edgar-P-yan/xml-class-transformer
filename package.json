@@ -26,7 +26,8 @@
     "lint": "eslint \"*/**/*.{ts,js,json}\"",
     "lint:fix": "eslint \"*/**/*.{ts,js,json}\" --fix",
     "build": "rollup --config ./rollup.config.mjs",
-    "prepublishOnly": "npm run doc && npm run lint && npm run test && npm run build"
+    "prepublishOnly": "npm run doc && npm run lint && npm run test && npm run build",
+    "version": "npm run prepublishOnly && git add ."
   },
   "dependencies": {
     "xml-js": "^1.6.11"
