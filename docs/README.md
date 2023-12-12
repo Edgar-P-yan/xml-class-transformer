@@ -12,7 +12,7 @@ xml-class-transformer
 
 ### Type Aliases
 
-- [AnyClass](README.md#anyclass)
+- [XmlClass](README.md#xmlclass)
 - [XmlType](README.md#xmltype)
 
 ### Functions
@@ -25,13 +25,31 @@ xml-class-transformer
 
 ## Type Aliases
 
-### AnyClass
+### XmlClass
 
-Ƭ **AnyClass**: () => `any`
+Ƭ **XmlClass**: () => `any`
 
 #### Type declaration
 
-• **new AnyClass**(): `any`
+• **new XmlClass**(): `any`
+
+The XML class's constructor should not require any arguments.
+This is because the xml-class-transformer needs to be able to construct them
+when it needs to. And if the constructor relies on the arguments then it will crash.
+
+Note that it is okay and even recommended to give your classes a constructor like this:
+```ts
+class SomeXmlElement {
+ ...
+  constructor(seed?: SomeXmlElement) {
+    Object.assign(this, seed || {})
+  }
+}
+```
+
+note that the `seed` argument is optional. Such a constructor
+gives you a way to create instances with passed values and also
+enable the library to construct them without passing any arguments.
 
 ##### Returns
 
@@ -39,17 +57,17 @@ xml-class-transformer
 
 #### Defined in
 
-[src/types.ts:3](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/types.ts#L3)
+[src/types.ts:22](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/types.ts#L22)
 
 ___
 
 ### XmlType
 
-Ƭ **XmlType**: `XmlPrimitiveType` \| [`AnyClass`](README.md#anyclass)
+Ƭ **XmlType**: `XmlPrimitiveType` \| [`XmlClass`](README.md#xmlclass)
 
 #### Defined in
 
-[src/types.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/types.ts#L6)
+[src/types.ts:27](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/types.ts#L27)
 
 ## Functions
 
@@ -65,7 +83,7 @@ For more details on options see XmlAttributeOptions
 ```ts
 // a basic example
 class SomeXmlElement {
-  *XmlAttribute({ name: 'attributeName', type: String })
+  *XmlAttribute({ name: 'attributeName', type: () => String })
   attributeName: string;
 }
 ```
@@ -82,7 +100,7 @@ class SomeXmlElement {
 
 #### Defined in
 
-[src/decorators.ts:48](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/decorators.ts#L48)
+[src/decorators.ts:48](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/decorators.ts#L48)
 
 ___
 
@@ -104,7 +122,7 @@ Class decorator
 
 #### Defined in
 
-[src/decorators.ts:12](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/decorators.ts#L12)
+[src/decorators.ts:12](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/decorators.ts#L12)
 
 ___
 
@@ -126,7 +144,7 @@ Class property decorator.
 
 #### Defined in
 
-[src/decorators.ts:33](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/decorators.ts#L33)
+[src/decorators.ts:33](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/decorators.ts#L33)
 
 ___
 
@@ -147,7 +165,7 @@ ___
 
 #### Defined in
 
-[src/transform-class-to-xml.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/transform-class-to-xml.ts#L6)
+[src/transform-class-to-xml.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/transform-class-to-xml.ts#L6)
 
 ___
 
@@ -159,7 +177,7 @@ ___
 
 | Name | Type |
 | :------ | :------ |
-| `T` | extends [`AnyClass`](README.md#anyclass) |
+| `T` | extends [`XmlClass`](README.md#xmlclass) |
 
 #### Parameters
 
@@ -174,4 +192,4 @@ ___
 
 #### Defined in
 
-[src/transform-xml-to-class.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/transform-xml-to-class.ts#L6)
+[src/transform-xml-to-class.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/transform-xml-to-class.ts#L6)

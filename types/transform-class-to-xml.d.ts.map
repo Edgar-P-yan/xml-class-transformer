@@ -1,1 +1,1 @@
-{"version":3,"file":"transform-class-to-xml.d.ts","sourceRoot":"","sources":["../src/transform-class-to-xml.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,iBAAiB,EAAE,MAAM,SAAS,CAAC;AAG5C,wBAAgB,UAAU,CAAC,MAAM,EAAE,GAAG,EAAE,OAAO,CAAC,EAAE,iBAAiB,GAAG,MAAM,CAmB3E"}
+{"version":3,"file":"transform-class-to-xml.d.ts","sourceRoot":"","sources":["../src/transform-class-to-xml.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,iBAAiB,EAAW,MAAM,SAAS,CAAC;AAGrD,wBAAgB,UAAU,CAAC,MAAM,EAAE,GAAG,EAAE,OAAO,CAAC,EAAE,iBAAiB,GAAG,MAAM,CAmB3E"}

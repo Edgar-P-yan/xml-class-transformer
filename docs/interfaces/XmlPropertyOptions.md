@@ -24,7 +24,7 @@ Not compatible with the `attr` and `chardata` options.
 
 #### Defined in
 
-[src/types.ts:57](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/types.ts#L57)
+[src/types.ts:78](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/types.ts#L78)
 
 ___
 
@@ -37,7 +37,7 @@ Not compatible with the `chardata` and `union` options.
 
 #### Defined in
 
-[src/types.ts:72](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/types.ts#L72)
+[src/types.ts:93](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/types.ts#L93)
 
 ___
 
@@ -83,7 +83,7 @@ Output:
 
 #### Defined in
 
-[src/types.ts:109](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/types.ts#L109)
+[src/types.ts:130](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/types.ts#L130)
 
 ___
 
@@ -99,33 +99,45 @@ Not compatible with the `chardata` option and the union types.
 
 #### Defined in
 
-[src/types.ts:66](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/types.ts#L66)
+[src/types.ts:87](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/types.ts#L87)
 
 ___
 
 ### type
 
-• `Optional` **type**: [`XmlType`](../README.md#xmltype)
+• `Optional` **type**: () => [`XmlType`](../README.md#xmltype)
+
+#### Type declaration
+
+▸ (): [`XmlType`](../README.md#xmltype)
 
 Specify primitive type or class type for parsing and serializing.
 
 **`Example`**
 
-{ type: Number }
-{ type: Boolean }
-{ type: CustomClass }
+{ type: () => Number }
+{ type: () => Boolean }
+{ type: () => CustomClass }
 
 Not compatible with the `union` option.
 
+##### Returns
+
+[`XmlType`](../README.md#xmltype)
+
 #### Defined in
 
-[src/types.ts:33](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/types.ts#L33)
+[src/types.ts:54](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/types.ts#L54)
 
 ___
 
 ### union
 
-• `Optional` **union**: [`XmlType`](../README.md#xmltype)[]
+• `Optional` **union**: () => [`XmlClass`](../README.md#xmlclass)[]
+
+#### Type declaration
+
+▸ (): [`XmlClass`](../README.md#xmlclass)[]
 
 You can also specify union types, then at the parsing time
 the one whose name matches the XML element name will be selected.
@@ -147,9 +159,13 @@ test unions of primitive types
 **`Example`**
 
 ```ts
-{ union: [User, Admin] }
+{ union: () => [User, Admin] }
 ```
+
+##### Returns
+
+[`XmlClass`](../README.md#xmlclass)[]
 
 #### Defined in
 
-[src/types.ts:51](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ee69987/src/types.ts#L51)
+[src/types.ts:72](https://github.com/Edgar-P-yan/xml-class-transformer/blob/0116cb1/src/types.ts#L72)

@@ -2,10 +2,10 @@ import { XmlEntity, XmlProperty, xmlToClass } from '../src/index';
 
 @XmlEntity({})
 class Article {
-  @XmlProperty({ type: String })
+  @XmlProperty({ type: () => String })
   title: string;
 
-  @XmlProperty({ type: String })
+  @XmlProperty({ type: () => String })
   content: string;
 
   constructor(article?: Article) {

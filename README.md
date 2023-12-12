@@ -29,10 +29,10 @@ yarn add xml-class-transformer
 ```ts
 @XmlEntity({ name: 'Article' })
 class Article {
-  @XmlProperty({ type: String, name: 'Title' })
+  @XmlProperty({ type: () => String, name: 'Title' })
   title: string;
 
-  @XmlProperty({ type: String, name: 'Content' })
+  @XmlProperty({ type: () => String, name: 'Content' })
   content: string;
 
   constructor(d?: Article) {
@@ -51,8 +51,8 @@ console.log(parsedArticle); // Article { title: 'Some title', content: 'The cont
 ## Features
 
 - Declarative and easy TypeScript decorators.
-- Union types (`@XmlProperty({ union: [Employee, Manager] }) user: Employee | Manager;`).
-- XML Arrays, including arrays with union types (e.g. `@XmlProperty({ type: [Employee, Manager], array: true }) users: (Employee | Manager)[]`).
+- Union types (`@XmlProperty({ union: () => [Employee, Manager] }) user: Employee | Manager;`).
+- XML Arrays, including arrays with union types (e.g. `@XmlProperty({ type: () => [Employee, Manager], array: true }) users: (Employee | Manager)[]`).
 - XML Attributes.
 - XML Declarations (`<?xml version="1.0" encoding="UTF-8"?>`).
 - Battle-tested in production and unit coverage "> 80%".
@@ -103,10 +103,10 @@ import {
 
 @XmlEntity({ name: 'Article' })
 class Article {
-  @XmlProperty({ type: String, name: 'Title' })
+  @XmlProperty({ type: () => String, name: 'Title' })
   title: string;
 
-  @XmlProperty({ type: String, name: 'Content' })
+  @XmlProperty({ type: () => String, name: 'Content' })
   content: string;
 
   constructor(d?: Version) {
@@ -164,7 +164,7 @@ On the other hand serializing `null` is a bit tricky: XMLs don't have such thing
 
 ```ts
 class XmlNullProp {
-  @XmlProperty({ type: Number }) nullProp: number | null;
+  @XmlProperty({ type: () => Number }) nullProp: number | null;
   constructor(d?: XmlNullProp) {
     Object.assign(this, d || {});
   }

@@ -1,4 +1,4 @@
-import type { AnyClass, XmlEntityOptions, XmlPropertyOptions } from './types';
+import type { XmlClass, XmlEntityOptions, XmlPropertyOptions } from './types';
 
 type ClassMetadatas = {
   properties: Map<string, XmlPropertyOptions>;
@@ -6,9 +6,9 @@ type ClassMetadatas = {
 };
 
 export class ClassMetadataRegistry {
-  private registry = new Map<AnyClass, ClassMetadatas>();
+  private registry = new Map<XmlClass, ClassMetadatas>();
 
-  setEntityOptions(clazz: AnyClass, opts: XmlEntityOptions): void {
+  setEntityOptions(clazz: XmlClass, opts: XmlEntityOptions): void {
     const metadata = this.registry.get(clazz);
 
     if (metadata) {
@@ -22,7 +22,7 @@ export class ClassMetadataRegistry {
   }
 
   setPropertyOptions(
-    clazz: AnyClass,
+    clazz: XmlClass,
     propertyKey: string,
     opts: XmlPropertyOptions,
   ): void {
@@ -55,7 +55,7 @@ export class ClassMetadataRegistry {
     metadata.properties.set(propertyKey, opts);
   }
 
-  private getOrCreate(clazz: AnyClass): ClassMetadatas {
+  private getOrCreate(clazz: XmlClass): ClassMetadatas {
     const existing = this.registry.get(clazz);
     if (existing) {
       return existing;
@@ -73,7 +73,7 @@ export class ClassMetadataRegistry {
     }
   }
 
-  get(clazz: AnyClass): ClassMetadatas | undefined {
+  get(clazz: XmlClass): ClassMetadatas | undefined {
     return this.registry.get(clazz);
   }
 }

@@ -41,7 +41,7 @@ export function XmlProperty(opts: XmlPropertyOptions): PropertyDecorator {
  * @example
  * // a basic example
  * class SomeXmlElement {
- *   *XmlAttribute({ name: 'attributeName', type: String })
+ *   *XmlAttribute({ name: 'attributeName', type: () => String })
  *   attributeName: string;
  * }
  */
@@ -80,7 +80,10 @@ function propertyDecoratorFactory(
       );
     }
 
-    if (opts.union && !opts.union.length) {
+    // opts.union here can potentially return an array of undefineds
+    // in case if there are circular dependencies. But that's okay,
+    // because we only need to check that the array is not empty.
+    if (opts.union && !opts.union().length) {
       throw new TypeError(
         `xml-class-transformer: The "union" option in @${decoratorName}({ ... }) can't be empty ` +
           `at ${target.constructor.name}#${propertyKey.toString()}.`,
@@ -102,14 +105,17 @@ function propertyDecoratorFactory(
 
     if (
       opts.union &&
-      (opts.union.includes(String) ||
-        opts.union.includes(Number) ||
-        opts.union.includes(Boolean))
+      // opts.union() can potentially return undefineds in case if there are circular dependencies.
+      // But the primitive values constructors (String, Number and Boolean) are always defined.
+      // So it's okay to check them like this:
+      (opts.union().includes(String) ||
+        opts.union().includes(Number) ||
+        opts.union().includes(Boolean))
     ) {
       throw new TypeError(
         `xml-class-transformer: unions of primitive types (String, Number or Boolean) are not supported. ` +
           `Fix it in the decorator @${decoratorName}({ ` +
-          `union: ${serializeUnionForLog(opts.union)}, ... }) ` +
+          `union: ${serializeUnionForLog(opts.union())}, ... }) ` +
           `at "${target.constructor.name}#${propertyKey.toString()}".`,
       );
     }

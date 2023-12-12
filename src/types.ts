@@ -1,14 +1,35 @@
 import type * as xmljs from 'xml-js';
 
-export type AnyClass = { new (): any };
+/**
+ * The XML class's constructor should not require any arguments.
+ * This is because the xml-class-transformer needs to be able to construct them
+ * when it needs to. And if the constructor relies on the arguments then it will crash.
+ *
+ * Note that it is okay and even recommended to give your classes a constructor like this:
+ * ```ts
+ * class SomeXmlElement {
+ *  ...
+ *   constructor(seed?: SomeXmlElement) {
+ *     Object.assign(this, seed || {})
+ *   }
+ * }
+ * ```
+ *
+ * note that the `seed` argument is optional. Such a constructor
+ * gives you a way to create instances with passed values and also
+ * enable the library to construct them without passing any arguments.
+ */
+export type XmlClass = {
+  new (/** here should not be any required arguments */): any;
+};
 
 export type XmlPrimitiveType = typeof String | typeof Number | typeof Boolean;
-export type XmlType = XmlPrimitiveType | AnyClass;
+export type XmlType = XmlPrimitiveType | XmlClass;
 
 export interface XmlEntityOptions {
   /**
    * xmlns attribute value.
-   * This is just a shortcut for the `@XmlAttribute({ name: 'xmlns', value: '...' })` property decorator.
+   * This is just a shortcut for the `@XmlAttribute({ name: 'xmlns', type: () => String })` property decorator.
    */
   xmlns?: string;
 
@@ -23,14 +44,14 @@ export interface XmlPropertyOptions {
   /**
    * Specify primitive type or class type for parsing and serializing.
    * @example
-   * { type: String }
-   * { type: Number }
-   * { type: Boolean }
-   * { type: CustomClass }
+   * { type: () => String }
+   * { type: () => Number }
+   * { type: () => Boolean }
+   * { type: () => CustomClass }
    *
    * Not compatible with the `union` option.
    */
-  type?: XmlType;
+  type?: () => XmlType;
 
   /**
    * You can also specify union types, then at the parsing time
@@ -46,9 +67,9 @@ export interface XmlPropertyOptions {
    * @todo test unions of primitive types
    *
    * @example
-   * { union: [User, Admin] }
+   * { union: () => [User, Admin] }
    */
-  union?: XmlType[];
+  union?: () => XmlClass[];
 
   /**
    * If true, the property will be parsed and serialized as an array.
@@ -115,11 +136,11 @@ export interface XmlAttributeOptions extends Pick<XmlPropertyOptions, 'name'> {
    * Specify the primitive type for parsing and serializing the attribute.
    *
    * @example
-   * { type: String }
-   * { type: Number }
-   * { type: Boolean }
+   * { type: () => String }
+   * { type: () => Number }
+   * { type: () => Boolean }
    */
-  type: XmlPrimitiveType;
+  type: () => XmlPrimitiveType;
 }
 
 export interface ClassToXmlOptions extends xmljs.Options.JS2XML {

@@ -4,7 +4,7 @@ export { xmlToClass } from './transform-xml-to-class';
 export { XmlEntity, XmlProperty, XmlAttribute } from './decorators';
 
 export type {
-  AnyClass,
+  XmlClass,
   ClassToXmlOptions,
   XmlEntityOptions,
   XmlPropertyOptions,

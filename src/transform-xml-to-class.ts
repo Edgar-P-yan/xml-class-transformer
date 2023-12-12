@@ -1,9 +1,9 @@
 import xmljs from 'xml-js';
 import { registry } from './class-metadata-registry';
-import type { AnyClass, XmlPrimitiveType, XmlType } from './types';
-import { errUnknownClass } from './common';
+import type { XmlClass, XmlPrimitiveType, XmlType } from './types';
+import { errUnknownClass, isPrimitiveType } from './common';
 
-export function xmlToClass<T extends AnyClass>(
+export function xmlToClass<T extends XmlClass>(
   xml: string,
   _class: T,
 ): InstanceType<T> {
@@ -21,8 +21,8 @@ export function xmlToClass<T extends AnyClass>(
   return xmlToClassInternal(firstElement, _class);
 }
 
-function xmlToClassInternal(element: xmljs.Element, _class: any): any {
-  if ([String, Number, Boolean].includes(_class)) {
+function xmlToClassInternal(element: xmljs.Element, _class: XmlType): any {
+  if (isPrimitiveType(_class)) {
     const text = getTextForElem(element);
 
     return parsePrimitive(text, _class);
@@ -47,23 +47,20 @@ function xmlToClassInternal(element: xmljs.Element, _class: any): any {
       const attr = element.attributes?.[metadata.name];
 
       if (attr !== undefined && attr !== null) {
-        inst[key] = parsePrimitive(
-          attr,
-          metadata.type as XmlPrimitiveType | undefined,
-        );
+        inst[key] = parsePrimitive(attr, metadata.type!() as XmlPrimitiveType);
       } else {
         // If the attribute property is undefined - it means
         // that the attribute was not present in the xml.
         inst[key] = undefined;
       }
     } else if (metadata.chardata) {
-      inst[key] = xmlToClassInternal(element, metadata.type);
+      inst[key] = xmlToClassInternal(element, metadata.type!());
     } else if (metadata.array) {
       if (metadata.union) {
         // TODO: optimize and cache this map:
         const tagNameToClassType: Map<string, any> = new Map();
 
-        metadata.union.forEach((classType) => {
+        metadata.union().forEach((classType) => {
           const classTypeMetadata = registry.get(classType);
 
           if (!classTypeMetadata) {
@@ -103,7 +100,7 @@ function xmlToClassInternal(element: xmljs.Element, _class: any): any {
         const resolvedValues: any[] = [];
 
         elems.forEach((el) => {
-          const entity = xmlToClassInternal(el, metadata.type as XmlType);
+          const entity = xmlToClassInternal(el, metadata.type!() as XmlType);
 
           resolvedValues.push(entity);
         });
@@ -114,7 +111,7 @@ function xmlToClassInternal(element: xmljs.Element, _class: any): any {
       // TODO: optimize and cache this map:
       const tagNameToClassType: Map<string, any> = new Map();
 
-      metadata.union.forEach((classType) => {
+      metadata.union().forEach((classType) => {
         const classTypeMetadata = registry.get(classType);
 
         if (!classTypeMetadata) {
@@ -146,7 +143,7 @@ function xmlToClassInternal(element: xmljs.Element, _class: any): any {
       const el = element.elements?.find((el) => el.name === metadata.name);
 
       if (el) {
-        const value: any = xmlToClassInternal(el, metadata.type);
+        const value: any = xmlToClassInternal(el, metadata.type!());
 
         inst[key] = value;
       } else {

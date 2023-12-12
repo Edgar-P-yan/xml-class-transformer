@@ -14,7 +14,7 @@ export declare function XmlProperty(opts: XmlPropertyOptions): PropertyDecorator
  * @example
  * // a basic example
  * class SomeXmlElement {
- *   *XmlAttribute({ name: 'attributeName', type: String })
+ *   *XmlAttribute({ name: 'attributeName', type: () => String })
  *   attributeName: string;
  * }
  */

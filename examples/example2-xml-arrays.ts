@@ -2,10 +2,10 @@ import { XmlEntity, XmlProperty, xmlToClass } from '../src/index';
 
 @XmlEntity({})
 class Comment {
-  @XmlProperty({ type: String })
+  @XmlProperty({ type: () => String })
   author: string;
 
-  @XmlProperty({ type: String })
+  @XmlProperty({ type: () => String })
   text: string;
 
   constructor(d?: Comment) {
@@ -15,13 +15,13 @@ class Comment {
 
 @XmlEntity({})
 class Article {
-  @XmlProperty({ type: String })
+  @XmlProperty({ type: () => String })
   title: string;
 
-  @XmlProperty({ type: String })
+  @XmlProperty({ type: () => String })
   content: string;
 
-  @XmlProperty({ type: Comment, array: true })
+  @XmlProperty({ type: () => Comment, array: true })
   comments: Comment[];
 
   constructor(d?: Article) {

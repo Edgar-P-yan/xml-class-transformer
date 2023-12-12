@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import {
-  AnyClass,
+  XmlClass,
   classToXml,
   XmlEntity,
   XmlAttribute,
@@ -10,10 +10,10 @@ import {
 
 @XmlEntity({ name: 'Bucket' })
 export class Bucket {
-  @XmlProperty({ name: 'Name', type: String })
+  @XmlProperty({ name: 'Name', type: () => String })
   Name: string;
 
-  @XmlProperty({ name: 'CreationDate', type: String })
+  @XmlProperty({ name: 'CreationDate', type: () => String })
   CreationDate: string;
 
   constructor(d?: Bucket) {
@@ -23,7 +23,7 @@ export class Bucket {
 
 @XmlEntity({ name: 'Buckets' })
 export class Buckets {
-  @XmlProperty({ name: 'Bucket', type: Bucket, array: true })
+  @XmlProperty({ name: 'Bucket', type: () => Bucket, array: true })
   Bucket: Bucket[];
 
   constructor(d?: Buckets) {
@@ -33,7 +33,7 @@ export class Buckets {
 
 @XmlEntity({ name: 'ListAllMyBucketsResult' })
 export class ListAllMyBucketsResult {
-  @XmlProperty({ name: 'Buckets', type: Buckets })
+  @XmlProperty({ name: 'Buckets', type: () => Buckets })
   Buckets: Buckets;
 
   constructor(d?: ListAllMyBucketsResult) {
@@ -43,10 +43,10 @@ export class ListAllMyBucketsResult {
 
 @XmlEntity({ name: 'Version' })
 class Version {
-  @XmlProperty({ type: String, name: 'Id' })
+  @XmlProperty({ type: () => String, name: 'Id' })
   Id: string;
 
-  @XmlProperty({ type: String, name: 'Size' })
+  @XmlProperty({ type: () => String, name: 'Size' })
   Size: string;
 
   constructor(d?: Version) {
@@ -56,7 +56,7 @@ class Version {
 
 @XmlEntity({ name: 'DeleteMarker' })
 class DeleteMarker {
-  @XmlProperty({ type: String, name: 'Id' })
+  @XmlProperty({ type: () => String, name: 'Id' })
   Id: string;
 
   constructor(d?: DeleteMarker) {
@@ -69,7 +69,7 @@ class DeleteMarker {
   name: 'ListVersions',
 })
 class ListVersions {
-  @XmlProperty({ union: [Version, DeleteMarker], array: true })
+  @XmlProperty({ union: () => [Version, DeleteMarker], array: true })
   Versions: (Version | DeleteMarker)[];
 
   constructor(d?: ListVersions) {
@@ -237,10 +237,10 @@ describe('xml-class-transformer', () => {
       // @ts-expect-error
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       class Article {
-        @XmlProperty({ name: 'Title', type: String })
+        @XmlProperty({ name: 'Title', type: () => String })
         Title: string;
 
-        @XmlProperty({ name: 'Title', type: String })
+        @XmlProperty({ name: 'Title', type: () => String })
         Author: string;
       }
     }).to.throw(
@@ -254,15 +254,15 @@ describe('xml-class-transformer', () => {
   it('decorator XmlAttribute works', () => {
     @XmlEntity({ name: 'article' })
     class Article {
-      @XmlAttribute({ type: String })
+      @XmlAttribute({ type: () => String })
       language: string;
 
-      @XmlAttribute({ name: 'comments', type: Number })
+      @XmlAttribute({ name: 'comments', type: () => Number })
       comments: number;
 
       @XmlProperty({
         name: 'title',
-        type: String,
+        type: () => String,
       })
       title: string;
 
@@ -302,10 +302,10 @@ describe('xml-class-transformer', () => {
       // @ts-expect-error
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       class TestMultipleCharDatas {
-        @XmlProperty({ type: String, chardata: true })
+        @XmlProperty({ type: () => String, chardata: true })
         firstCharData: string;
 
-        @XmlProperty({ type: String, chardata: true })
+        @XmlProperty({ type: () => String, chardata: true })
         secondCharDate: string;
       }
     }).to.throw('an XML element can have only one chardata property');
@@ -313,7 +313,7 @@ describe('xml-class-transformer', () => {
 
   it('chardata works', () => {
     class TestChardata {
-      @XmlProperty({ type: String, chardata: true })
+      @XmlProperty({ type: () => String, chardata: true })
       chardata: string;
 
       constructor(d?: TestChardata) {
@@ -322,7 +322,7 @@ describe('xml-class-transformer', () => {
     }
 
     class TestNumericChardata {
-      @XmlProperty({ type: Number, chardata: true })
+      @XmlProperty({ type: () => Number, chardata: true })
       chardata: number;
 
       constructor(d?: TestNumericChardata) {
@@ -345,7 +345,7 @@ describe('xml-class-transformer', () => {
 
   it('nulls for strings transform to empty xml strings, and stay as empty strings when parsed back', () => {
     class NullPropsStr {
-      @XmlProperty({ type: String })
+      @XmlProperty({ type: () => String })
       nullPropStr: string | null;
 
       constructor(d?: NullPropsStr) {
@@ -365,7 +365,7 @@ describe('xml-class-transformer', () => {
 
   it('nulls for numbers transform to empty xml strings, and back to nulls when parsed back', () => {
     class NullPropsNumber {
-      @XmlProperty({ type: Number })
+      @XmlProperty({ type: () => Number })
       nullPropNumber: number | null;
 
       constructor(d?: NullPropsNumber) {
@@ -382,7 +382,7 @@ describe('xml-class-transformer', () => {
 
   it('nulls for booleans transform to empty xml strings, and back to nulls when parsed back', () => {
     class NullPropsBoolean {
-      @XmlProperty({ type: Number })
+      @XmlProperty({ type: () => Number })
       nullPropBoolean: boolean | null;
 
       constructor(d?: NullPropsBoolean) {
@@ -399,7 +399,7 @@ describe('xml-class-transformer', () => {
 
   it('undefined for strings does not emit the xml element, and stay as undefined when parsed back', () => {
     class UndefinedPropsStr {
-      @XmlProperty({ type: String })
+      @XmlProperty({ type: () => String })
       undefinedPropStr: string | undefined;
 
       constructor(d?: UndefinedPropsStr) {
@@ -416,7 +416,7 @@ describe('xml-class-transformer', () => {
 
   it('undefined for numbers does not emit the xml element, and stay as undefined when parsed back', () => {
     class UndefinedPropsNumber {
-      @XmlProperty({ type: Number })
+      @XmlProperty({ type: () => Number })
       undefinedPropNumber: number | undefined;
 
       constructor(d?: UndefinedPropsNumber) {
@@ -433,12 +433,12 @@ describe('xml-class-transformer', () => {
 
   it('undefined and null for nested xml entities are not emitted, and converted to undefined when parsed back', () => {
     class NestedObj {
-      @XmlProperty({ chardata: true, type: String })
+      @XmlProperty({ chardata: true, type: () => String })
       text: string;
     }
 
     class UndefinedOrNullForObj {
-      @XmlProperty({ type: NestedObj })
+      @XmlProperty({ type: () => NestedObj })
       obj: NestedObj | undefined | null;
 
       constructor(d?: UndefinedOrNullForObj) {
@@ -462,12 +462,12 @@ describe('xml-class-transformer', () => {
 
   it('empty and null arrays stay as empty arrays', () => {
     class TestEmptyArrayItem {
-      @XmlProperty({ type: String })
+      @XmlProperty({ type: () => String })
       someItemProp: string;
     }
 
     class TestEmptyArraysRoot {
-      @XmlProperty({ type: TestEmptyArrayItem, array: true })
+      @XmlProperty({ type: () => TestEmptyArrayItem, array: true })
       emptyOrNullOrUndefinedArray: TestEmptyArrayItem[] | null | undefined;
 
       constructor(d?: TestEmptyArraysRoot) {
@@ -502,7 +502,7 @@ describe('xml-class-transformer', () => {
       // @ts-expect-error
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       class _UnionOfPrimitives {
-        @XmlProperty({ union: [String, Number] })
+        @XmlProperty({ union: () => [String, Number] })
         prop: string | number;
       }
     }).throws(TypeError, 'unions of primitive types');
@@ -511,13 +511,13 @@ describe('xml-class-transformer', () => {
   it('different configs mixed', () => {
     @XmlEntity()
     class StrProps {
-      @XmlProperty({ type: String })
+      @XmlProperty({ type: () => String })
       strPropWODefName: string;
 
-      @XmlProperty({ name: 'strPropWithDefinedName', type: String })
+      @XmlProperty({ name: 'strPropWithDefinedName', type: () => String })
       strPropDefName: string;
 
-      @XmlProperty({ name: 'diffName', type: String })
+      @XmlProperty({ name: 'diffName', type: () => String })
       strPropDiffName: string;
 
       constructor(d?: StrProps) {
@@ -527,10 +527,10 @@ describe('xml-class-transformer', () => {
 
     // Without decorator, should work as well
     class NumberProps {
-      @XmlProperty({ type: Number })
+      @XmlProperty({ type: () => Number })
       integerProp: number;
 
-      @XmlProperty({ type: Number })
+      @XmlProperty({ type: () => Number })
       floatProp: number;
 
       constructor(d?: NumberProps) {
@@ -539,7 +539,7 @@ describe('xml-class-transformer', () => {
     }
 
     class SomeElement {
-      @XmlProperty({ type: String })
+      @XmlProperty({ type: () => String })
       title: string;
 
       constructor(d?: SomeElement) {
@@ -548,7 +548,7 @@ describe('xml-class-transformer', () => {
     }
 
     class AnotherElement {
-      @XmlProperty({ type: Number })
+      @XmlProperty({ type: () => Number })
       val: number;
 
       constructor(d?: AnotherElement) {
@@ -557,10 +557,10 @@ describe('xml-class-transformer', () => {
     }
 
     class CharDataElemWithAttr {
-      @XmlAttribute({ type: String })
+      @XmlAttribute({ type: () => String })
       attr: string;
 
-      @XmlProperty({ chardata: true, type: String })
+      @XmlProperty({ chardata: true, type: () => String })
       strChardata: string;
 
       constructor(d?: CharDataElemWithAttr) {
@@ -569,10 +569,10 @@ describe('xml-class-transformer', () => {
     }
 
     class NumberCharData {
-      @XmlAttribute({ type: Number })
+      @XmlAttribute({ type: () => Number })
       attr: number;
 
-      @XmlProperty({ chardata: true, type: Number })
+      @XmlProperty({ chardata: true, type: () => Number })
       strChardata: number;
 
       constructor(d?: NumberCharData) {
@@ -582,7 +582,7 @@ describe('xml-class-transformer', () => {
 
     @XmlEntity({ name: 'DiffNameAdmin' })
     class Admin {
-      @XmlProperty({ type: String })
+      @XmlProperty({ type: () => String })
       adminName: string;
 
       constructor(d?: Admin) {
@@ -592,7 +592,7 @@ describe('xml-class-transformer', () => {
 
     @XmlEntity({ name: 'DiffNameUser' })
     class User {
-      @XmlProperty({ type: String })
+      @XmlProperty({ type: () => String })
       userName: string;
 
       constructor(d?: User) {
@@ -600,49 +600,49 @@ describe('xml-class-transformer', () => {
       }
     }
     class SomeComplexXmlElement {
-      @XmlAttribute({ type: String })
+      @XmlAttribute({ type: () => String })
       rootAttrStr: string;
 
-      @XmlAttribute({ type: Number })
+      @XmlAttribute({ type: () => Number })
       rootAttrNumber: number;
 
-      @XmlAttribute({ type: Number })
+      @XmlAttribute({ type: () => Number })
       possiblyNullNumberProp: number | null;
 
-      @XmlAttribute({ type: Number })
+      @XmlAttribute({ type: () => Number })
       possiblyUndefinedNumberProp: number | undefined;
 
-      @XmlProperty({ type: StrProps })
+      @XmlProperty({ type: () => StrProps })
       strProps: StrProps;
 
-      @XmlProperty({ type: NumberProps })
+      @XmlProperty({ type: () => NumberProps })
       numberProps: NumberProps;
 
-      @XmlProperty({ type: Boolean })
+      @XmlProperty({ type: () => Boolean })
       boolProp: boolean;
 
-      @XmlProperty({ type: SomeElement })
+      @XmlProperty({ type: () => SomeElement })
       possiblyNullObj: SomeElement | null;
 
-      @XmlProperty({ type: SomeElement })
+      @XmlProperty({ type: () => SomeElement })
       possiblyUndefinedObj: SomeElement | undefined;
 
-      @XmlProperty({ type: String })
+      @XmlProperty({ type: () => String })
       possiblyNullStrProp: string | null;
 
-      @XmlProperty({ type: String })
+      @XmlProperty({ type: () => String })
       possiblyUndefinedStrProp: string | undefined;
 
-      @XmlProperty({ union: [SomeElement, AnotherElement] })
+      @XmlProperty({ union: () => [SomeElement, AnotherElement] })
       basicUnionObj: SomeElement | AnotherElement;
 
-      @XmlProperty({ type: CharDataElemWithAttr })
+      @XmlProperty({ type: () => CharDataElemWithAttr })
       elemWithCharData: CharDataElemWithAttr;
 
-      @XmlProperty({ type: NumberCharData })
+      @XmlProperty({ type: () => NumberCharData })
       numberChatdata: NumberCharData;
 
-      @XmlProperty({ union: [User, Admin], array: true })
+      @XmlProperty({ union: () => [User, Admin], array: true })
       usersOrAdmins: (User | Admin)[];
 
       constructor(d?: SomeComplexXmlElement) {
@@ -747,7 +747,7 @@ describe('xml-class-transformer', () => {
 
 function testBidirConversion(
   input: any,
-  classType: AnyClass,
+  classType: XmlClass,
   expectedXml: string,
   expectedObj?: any,
 ): void {

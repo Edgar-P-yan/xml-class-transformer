@@ -72,9 +72,16 @@ function errUnknownClass(classConstructor) {
 function serializeUnionForLog(union) {
     return ('[' +
         union
-            .map((t) => t === null ? 'null' : t === undefined ? 'undefined' : t.name)
+            .map((t) => t === null
+            ? 'null'
+            : t === undefined
+                ? 'undefined'
+                : t.name || `${union}`)
             .join(', ') +
         ']');
+}
+function isPrimitiveType(type) {
+    return type === String || type === Number || type === Boolean;
 }
 
 function classToXml(entity, options) {
@@ -94,7 +101,7 @@ function classToXml(entity, options) {
     return xmljs.js2xml(rootElem, options);
 }
 function classToXmlInternal(entity, name, entityConstructor) {
-    if ([String, Number, Boolean].includes(entityConstructor)) {
+    if (isPrimitiveType(entityConstructor)) {
         const text = entity === null ? '' : `${entity}`;
         return {
             type: 'element',
@@ -149,16 +156,16 @@ function classToXmlInternal(entity, name, entityConstructor) {
                 // If it is a union then we can't guess required class out of it.
                 // In those cases users should give to the library actual class instances (aka new MyEntity({...}))
                 // so the library can guess the class type just by looking at the myEntity.constructor
-                const classConstructor = opts.union ? e.constructor : opts.type;
+                const classConstructor = opts.union ? e.constructor : opts.type();
                 // The opts.name will be undefined if !!opts.union, but thats ok.
                 children.push(classToXmlInternal(e, opts.name, classConstructor));
             });
         }
-        else if ([String, Number, Boolean].includes(opts.type)) {
+        else if (opts.type && isPrimitiveType(opts.type())) {
             if (!opts.name) {
                 throw new Error(`No name is specified for property ${entityConstructor === null || entityConstructor === void 0 ? void 0 : entityConstructor.name}#${classKey}. Specify it with @XmlProperty({ name: '...' }) decorator.`);
             }
-            children.push(classToXmlInternal(entity[classKey], opts.name, opts.type));
+            children.push(classToXmlInternal(entity[classKey], opts.name, opts.type()));
         }
         else if (opts.union) {
             // should work with primitive types also
@@ -169,7 +176,7 @@ function classToXmlInternal(entity, name, entityConstructor) {
             // If null then just skip this embedded element for the current impl
             // TODO: maybe non array unions are borken
             if (entity[classKey] !== null) {
-                children.push(classToXmlInternal(entity[classKey], opts.name, opts.union ? entity[classKey].constructor : opts.type));
+                children.push(classToXmlInternal(entity[classKey], opts.name, opts.union ? entity[classKey].constructor : opts.type()));
             }
         }
     });
@@ -197,7 +204,7 @@ function xmlToClass(xml, _class) {
     return xmlToClassInternal(firstElement, _class);
 }
 function xmlToClassInternal(element, _class) {
-    if ([String, Number, Boolean].includes(_class)) {
+    if (isPrimitiveType(_class)) {
         const text = getTextForElem(element);
         return parsePrimitive(text, _class);
     }
@@ -214,7 +221,7 @@ function xmlToClassInternal(element, _class) {
             }
             const attr = (_a = element.attributes) === null || _a === void 0 ? void 0 : _a[metadata.name];
             if (attr !== undefined && attr !== null) {
-                inst[key] = parsePrimitive(attr, metadata.type);
+                inst[key] = parsePrimitive(attr, metadata.type());
             }
             else {
                 // If the attribute property is undefined - it means
@@ -223,13 +230,13 @@ function xmlToClassInternal(element, _class) {
             }
         }
         else if (metadata.chardata) {
-            inst[key] = xmlToClassInternal(element, metadata.type);
+            inst[key] = xmlToClassInternal(element, metadata.type());
         }
         else if (metadata.array) {
             if (metadata.union) {
                 // TODO: optimize and cache this map:
                 const tagNameToClassType = new Map();
-                metadata.union.forEach((classType) => {
+                metadata.union().forEach((classType) => {
                     const classTypeMetadata = registry.get(classType);
                     if (!classTypeMetadata) {
                         throw errUnknownClass(classType);
@@ -255,7 +262,7 @@ function xmlToClassInternal(element, _class) {
                 const elems = ((_c = element.elements) === null || _c === void 0 ? void 0 : _c.filter((e) => e.name === metadata.name)) || [];
                 const resolvedValues = [];
                 elems.forEach((el) => {
-                    const entity = xmlToClassInternal(el, metadata.type);
+                    const entity = xmlToClassInternal(el, metadata.type());
                     resolvedValues.push(entity);
                 });
                 inst[key] = resolvedValues;
@@ -264,7 +271,7 @@ function xmlToClassInternal(element, _class) {
         else if (metadata.union) {
             // TODO: optimize and cache this map:
             const tagNameToClassType = new Map();
-            metadata.union.forEach((classType) => {
+            metadata.union().forEach((classType) => {
                 const classTypeMetadata = registry.get(classType);
                 if (!classTypeMetadata) {
                     throw errUnknownClass(classType);
@@ -285,7 +292,7 @@ function xmlToClassInternal(element, _class) {
         else {
             const el = (_e = element.elements) === null || _e === void 0 ? void 0 : _e.find((el) => el.name === metadata.name);
             if (el) {
-                const value = xmlToClassInternal(el, metadata.type);
+                const value = xmlToClassInternal(el, metadata.type());
                 inst[key] = value;
             }
             else {
@@ -356,7 +363,7 @@ function XmlProperty(opts) {
  * @example
  * // a basic example
  * class SomeXmlElement {
- *   *XmlAttribute({ name: 'attributeName', type: String })
+ *   *XmlAttribute({ name: 'attributeName', type: () => String })
  *   attributeName: string;
  * }
  */
@@ -379,7 +386,10 @@ function propertyDecoratorFactory(decoratorName, opts) {
                 `${target.constructor.name}#${propertyKey.toString()}. Add it to ` +
                 `the @${decoratorName}({...}) decorator.`);
         }
-        if (opts.union && !opts.union.length) {
+        // opts.union here can potentially return an array of undefineds
+        // in case if there are circular dependencies. But that's okay,
+        // because we only need to check that the array is not empty.
+        if (opts.union && !opts.union().length) {
             throw new TypeError(`xml-class-transformer: The "union" option in @${decoratorName}({ ... }) can't be empty ` +
                 `at ${target.constructor.name}#${propertyKey.toString()}.`);
         }
@@ -395,12 +405,15 @@ function propertyDecoratorFactory(decoratorName, opts) {
             opts.name = opts.name || propertyKey;
         }
         if (opts.union &&
-            (opts.union.includes(String) ||
-                opts.union.includes(Number) ||
-                opts.union.includes(Boolean))) {
+            // opts.union() can potentially return undefineds in case if there are circular dependencies.
+            // But the primitive values constructors (String, Number and Boolean) are always defined.
+            // So it's okay to check them like this:
+            (opts.union().includes(String) ||
+                opts.union().includes(Number) ||
+                opts.union().includes(Boolean))) {
             throw new TypeError(`xml-class-transformer: unions of primitive types (String, Number or Boolean) are not supported. ` +
                 `Fix it in the decorator @${decoratorName}({ ` +
-                `union: ${serializeUnionForLog(opts.union)}, ... }) ` +
+                `union: ${serializeUnionForLog(opts.union())}, ... }) ` +
                 `at "${target.constructor.name}#${propertyKey.toString()}".`);
         }
         registry.setPropertyOptions(target.constructor, propertyKey, opts);
