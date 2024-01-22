@@ -18,78 +18,81 @@ class ClassMetadataRegistry {
     constructor() {
         this.registry = new Map();
     }
-    setEntityOptions(clazz, opts) {
-        const metadata = this.registry.get(clazz);
+    setEntityOptions(xClass, opts) {
+        const metadata = this.registry.get(xClass);
         if (metadata) {
             metadata.entity = opts;
         }
         else {
-            this.registry.set(clazz, {
+            this.registry.set(xClass, {
                 entity: opts,
                 properties: new Map(),
             });
         }
     }
-    setPropertyOptions(clazz, propertyKey, opts) {
-        const metadata = this.getOrCreate(clazz);
+    setPropertyOptions(xClass, propertyKey, opts) {
+        const metadata = this.getOrCreate(xClass);
+        if (opts.comments) {
+            for (const [searchingPropKey, searchingOpts] of metadata.properties) {
+                if (searchingOpts.comments) {
+                    throw new Error(`xml-class-transformer: only one @XmlComment() decorator is allowed per class. ` +
+                        `Can not define @XmlComment() decorator for  ` +
+                        `${xClass.name}#${propertyKey} since it's already used for ` +
+                        `${xClass.name}#${searchingPropKey}.`);
+                }
+            }
+        }
         if (opts.name) {
             for (const [searchingPropKey, searchingOpts] of metadata.properties) {
                 if (searchingOpts.name === opts.name) {
                     throw new Error(`xml-class-transformer: can't use XML element name defined in ` +
                         `{ name: ${JSON.stringify(opts.name)} } for ` +
-                        `${clazz.name}#${propertyKey} since it's already used for ` +
-                        `${clazz.name}#${searchingPropKey}. Change it to something else.`);
+                        `${xClass.name}#${propertyKey} since it's already used for ` +
+                        `${xClass.name}#${searchingPropKey}. Change it to something else.`);
                 }
                 // TODO: maybe support multiple chardata for multiple child text nodes inside an xml element.
                 // each of those chardata properties whould match the text node at the same position as the property itself.
                 // The same goes for not yet implemented comments and cdata.
                 if (opts.chardata && searchingOpts.chardata) {
                     throw new Error(`xml-class-transformer: an XML element can have only one chardata property. ` +
-                        `Both ${clazz.name}#${propertyKey} and ${clazz.name}#${searchingOpts.name} ` +
+                        `Both ${xClass.name}#${propertyKey} and ${xClass.name}#${searchingOpts.name} ` +
                         `are defined as chardata, which is not valid.`);
                 }
             }
         }
         metadata.properties.set(propertyKey, opts);
     }
-    getOrCreate(clazz) {
-        const existing = this.registry.get(clazz);
+    getOrCreate(xClass) {
+        const existing = this.registry.get(xClass);
         if (existing) {
             return existing;
         }
         else {
             const newMetadatas = {
                 entity: {
-                    name: clazz === null || clazz === void 0 ? void 0 : clazz.name,
+                    name: xClass === null || xClass === void 0 ? void 0 : xClass.name,
                 },
                 properties: new Map(),
             };
-            this.registry.set(clazz, newMetadatas);
+            this.registry.set(xClass, newMetadatas);
             return newMetadatas;
         }
     }
-    get(clazz) {
-        return this.registry.get(clazz);
+    get(xClass) {
+        return this.registry.get(xClass);
     }
 }
 const registry = new ClassMetadataRegistry();
 
 function errUnknownClass(classConstructor) {
-    return new Error(`Class "${classConstructor}" not found. Make sure there is a @XmlEntity({...}) decorator on it, or @XmlProperty({...}) decorator on its properties.`);
+    return new Error(`xml-class-transformer: class "${classConstructor}" not found. Make sure there is a @XmlElem({...}) ` +
+        `decorator on it, or XmlChildElem, XmlAttribute, XmlChardata or XmlComments decorator on its properties.`);
 }
 function serializeUnionForLog(union) {
-    return ('[' +
-        union
-            .map((t) => t === null
-            ? 'null'
-            : t === undefined
-                ? 'undefined'
-                : t.name || `${union}`)
-            .join(', ') +
-        ']');
+    return '[' + union.map((t) => { var _a; return (_a = t === null || t === void 0 ? void 0 : t.name) !== null && _a !== void 0 ? _a : `${union}`; }).join(', ') + ']';
 }
 function isPrimitiveType(type) {
-    return type === String || type === Number || type === Boolean;
+    return (type === String || type === Number || type === BigInt || type === Boolean);
 }
 
 function classToXml(entity, options) {
@@ -128,7 +131,7 @@ function classToXmlInternal(entity, name, entityConstructor) {
     }
     const elemName = name || meta.entity.name;
     if (!elemName) {
-        throw new Error(`No XML name is specified for the class "${entityConstructor === null || entityConstructor === void 0 ? void 0 : entityConstructor.name}". Specify it with the @XmlEntity({ name: '...' }) decorator.`);
+        throw new Error(`xml-class-transformer: no XML name is specified for the class "${entityConstructor === null || entityConstructor === void 0 ? void 0 : entityConstructor.name}". Specify it with the @XmlElem({ name: '...' }) decorator.`);
     }
     const children = [];
     const attributes = {};
@@ -138,9 +141,19 @@ function classToXmlInternal(entity, name, entityConstructor) {
         if (entity[classKey] === undefined) {
             return;
         }
-        if (opts.attr) {
+        if (opts.comments) {
+            if (Array.isArray(entity[classKey])) {
+                for (const comment of entity[classKey]) {
+                    children.push({
+                        type: 'comment',
+                        comment: comment === null || comment === undefined ? '' : `${comment}`,
+                    });
+                }
+            }
+        }
+        else if (opts.attr) {
             if (!opts.name) {
-                throw new Error(`No name is specified for the property ${entityConstructor === null || entityConstructor === void 0 ? void 0 : entityConstructor.name}#${classKey}. Specify it with the @XmlProperty({ name: '...' }) decorator.`);
+                throw new Error(`xml-class-transformer: no name is specified for the property ${entityConstructor === null || entityConstructor === void 0 ? void 0 : entityConstructor.name}#${classKey}. Specify it with the @XmlAttribute({ name: '...' }) decorator.`);
             }
             attributes[opts.name] =
                 entity[classKey] === null ? '' : `${entity[classKey]}`;
@@ -171,7 +184,7 @@ function classToXmlInternal(entity, name, entityConstructor) {
         }
         else if (opts.type && isPrimitiveType(opts.type())) {
             if (!opts.name) {
-                throw new Error(`No name is specified for property ${entityConstructor === null || entityConstructor === void 0 ? void 0 : entityConstructor.name}#${classKey}. Specify it with @XmlProperty({ name: '...' }) decorator.`);
+                throw new Error(`xml-class-transformer: no name is specified for property ${entityConstructor === null || entityConstructor === void 0 ? void 0 : entityConstructor.name}#${classKey}. Specify it with @XmlChildElem({ name: '...' }) decorator.`);
             }
             children.push(classToXmlInternal(entity[classKey], opts.name, opts.type()));
         }
@@ -213,7 +226,7 @@ function xmlToClass(xml, _class) {
 }
 function xmlToClassInternal(element, _class) {
     if (isPrimitiveType(_class)) {
-        const text = getTextForElem(element);
+        const text = getChardataFromElem(element);
         return parsePrimitive(text, _class);
     }
     const metadatas = registry.get(_class);
@@ -223,9 +236,18 @@ function xmlToClassInternal(element, _class) {
     const inst = new _class();
     metadatas.properties.forEach((metadata, key) => {
         var _a, _b, _c, _d, _e;
-        if (metadata.attr) {
+        if (metadata.comments) {
+            const commentsAccumulated = [];
+            for (const childElem of element.elements || []) {
+                if (childElem.type === 'comment') {
+                    commentsAccumulated.push(childElem.comment || '');
+                }
+            }
+            inst[key] = commentsAccumulated;
+        }
+        else if (metadata.attr) {
             if (!metadata.name) {
-                throw new Error(`No name is specified for attribute ${key}. Specify it with @XmlProperty({ name: '...' }) decorator.`);
+                throw new Error(`xml-class-transformer: no name is specified for attribute ${key}. Specify it with @XmlAttribute({ name: '...' }) decorator.`);
             }
             const attr = (_a = element.attributes) === null || _a === void 0 ? void 0 : _a[metadata.name];
             if (attr !== undefined && attr !== null) {
@@ -251,7 +273,7 @@ function xmlToClassInternal(element, _class) {
                     }
                     const tagName = classTypeMetadata.entity.name;
                     if (!tagName) {
-                        throw new Error(`No name is specified for ${classType}. Specify it with the @XmlEntity({ name: '...' }) decorator.`);
+                        throw new Error(`xml-class-transformer: no name is specified for ${classType}. Specify it with the @XmlElem({ name: '...' }) decorator.`);
                     }
                     tagNameToClassType.set(tagName, classType);
                 });
@@ -286,7 +308,7 @@ function xmlToClassInternal(element, _class) {
                 }
                 const tagName = classTypeMetadata.entity.name;
                 if (!tagName) {
-                    throw new Error(`No name is specified for ${classType}. Specify it with the @XmlEntity({ name: '...' }) decorator.`);
+                    throw new Error(`xml-class-transformer: no name is specified for ${classType}. Specify it with the @XmlElem({ name: '...' }) decorator.`);
                 }
                 tagNameToClassType.set(tagName, classType);
             });
@@ -310,9 +332,14 @@ function xmlToClassInternal(element, _class) {
     });
     return inst;
 }
-function getTextForElem(el) {
-    var _a, _b;
-    return ((_b = (_a = el.elements) === null || _a === void 0 ? void 0 : _a.find((e) => e.type === 'text')) === null || _b === void 0 ? void 0 : _b.text) || '';
+function getChardataFromElem(el) {
+    let chardata = '';
+    for (const child of el.elements || []) {
+        if (child.type === 'text' && child.text) {
+            chardata += child.text || '';
+        }
+    }
+    return chardata;
 }
 function parsePrimitive(
 // Support numbers also
@@ -329,11 +356,13 @@ value, classConstructor) {
                 // bacause there is no convenient way to represent an empty string as a number,
                 // there is an idea to convert them to 0, but it's an implicit and non obvious behaviour.
                 // Maybe a better idea would be to convert them to NaN just as parseFloat does.
-                castToStr === '' ? null : castToStr ? parseFloat(castToStr) : undefined;
+                castToStr === '' ? null : parseFloat(castToStr);
+        }
+        else if (classConstructor === BigInt) {
+            result = castToStr === '' ? null : BigInt(castToStr);
         }
         else if (classConstructor === Boolean) {
-            result =
-                castToStr === '' ? null : castToStr ? castToStr === 'true' : undefined;
+            result = castToStr === '' ? null : castToStr === 'true';
         }
         else {
             // classConstructor is String or any other type, then fallback to String:
@@ -345,14 +374,31 @@ value, classConstructor) {
 }
 
 /**
- * Class decorator
+ * A class decorator.
+ * It can be omitted, but only if at least one Xml* property decorator is used on it's properties.
+ *
+ * @example
+ * \@XmlElem()
+ * class EmptyXmlElement {}
+ *
+ * \@XmlElem({ name: 'some-xml-element' })
+ * class SomeXmlElement {
+ *   \@XmlChildElem()
+ *   child: string;
+ * }
+ *
+ * \@XmlElem({ xmlns: 'http://s3.amazonaws.com/doc/2006-03-01/' })
+ * class SomeXmlElement {
+ *   \@XmlChildElem()
+ *   child: string;
+ * }
  */
-function XmlEntity(opts) {
+function XmlElem(opts) {
     return (target) => {
         opts = opts || {};
         opts.name = opts.name || target.name;
         if (!opts.name) {
-            throw new Error(`xml-class-transformer: Failed to get the element name for class ${target}. Specify it with @XmlEntity({ name: '...' }) decorator.`);
+            throw new Error(`xml-class-transformer: Failed to get the element name for class ${target}. Specify it with @XmlElem({ name: '...' }) decorator.`);
         }
         registry.setEntityOptions(target, opts);
         return target;
@@ -360,9 +406,21 @@ function XmlEntity(opts) {
 }
 /**
  * Class property decorator.
+ *
+ * @example
+ * class SomeElement {
+ *   \@XmlChildElem({ type: () => String })
+ *   stringElem: string;
+ *
+ *   \@XmlChildElem({ name: 'someOtherName', type: () => Number })
+ *   numberElem: string;
+ *
+ *   \@XmlChildElem({ type: () => NestedElem })
+ *   nestedElem: NestedElem;
+ * }
  */
-function XmlProperty(opts) {
-    return propertyDecoratorFactory('XmlProperty', opts);
+function XmlChildElem(opts) {
+    return propertyDecoratorFactory('XmlChildElem', opts);
 }
 /**
  * Class property decorator.
@@ -371,12 +429,87 @@ function XmlProperty(opts) {
  * @example
  * // a basic example
  * class SomeXmlElement {
- *   *XmlAttribute({ name: 'attributeName', type: () => String })
+ *   \@XmlAttribute({ name: 'attributeName', type: () => String })
  *   attributeName: string;
  * }
  */
 function XmlAttribute(opts) {
     return propertyDecoratorFactory('XmlAttribute', Object.assign(Object.assign({}, opts), { attr: true }));
+}
+/**
+ * This decorator, when used on a class property, collects all the comments
+ * from the provided XML, turns them into an array of strings and puts them into
+ * that property. And vice-versa: at serialization that array of strings gets serialized to set of comments
+ * in the resulting XML.
+ *
+ * @example
+ * ```ts
+ * class SomeElement {
+ *   \@XmlComments()
+ *   comments?: string[];
+ * }
+ *
+ * classToXml(
+ *   new SomeElement({
+ *     comments: ['some comment', 'some other comment']
+ *   })
+ * )
+ * ```
+ *
+ * Output:
+ * ```xml
+ * <SomeElement>
+ *   <!-- some comment -->
+ *   <!-- some other comment -->
+ * </SomeElement>
+ *
+ * ```
+ */
+function XmlComments() {
+    return (target, propertyKey) => {
+        if (typeof propertyKey !== 'string') {
+            // Dont support symbols for now
+            throw new TypeError(`xml-class-transformer: Can't use @XmlComments({...}) decorator on a symbol property ` +
+                `at ${target.constructor.name}#${propertyKey.toString()}`);
+        }
+        registry.setPropertyOptions(target.constructor, propertyKey, {
+            comments: true,
+        });
+    };
+}
+/**
+ * The property will be parsed and serialized as a character data.
+ * The "type" parameter can only be a primitive type: String, Number, Boolean.
+ *
+ * ```ts
+ * \@XmlElem({ name: 'Comment' })
+ * class Comment {
+ *   \@XmlChardata({ type: () => String })
+ *   text: string;
+ *
+ *   \@XmlAttribute({ type: () => String, name: 'lang' })
+ *   language: string;
+ *
+ *   constructor(d?: Comment) {
+ *     Object.assign(this, d || {});
+ *   }
+ * }
+ *
+ * classToXml(
+ *   new Comment({
+ *     text: 'This is awesome',
+ *     language: 'en',
+ *   }),
+ * )
+ * ```
+ *
+ * Output:
+ * ```xml
+ * <Comment lang="en">This is awesome</Comment>
+ * ```
+ */
+function XmlChardata(opts) {
+    return propertyDecoratorFactory('XmlChardata', Object.assign(Object.assign({}, opts), { chardata: true }));
 }
 function propertyDecoratorFactory(decoratorName, opts) {
     return (target, propertyKey) => {
@@ -394,43 +527,44 @@ function propertyDecoratorFactory(decoratorName, opts) {
                 `${target.constructor.name}#${propertyKey.toString()}. Add it to ` +
                 `the @${decoratorName}({...}) decorator.`);
         }
-        // opts.union here can potentially return an array of undefineds
-        // in case if there are circular dependencies. But that's okay,
-        // because we only need to check that the array is not empty.
         if (opts.union && !opts.union().length) {
             throw new TypeError(`xml-class-transformer: The "union" option in @${decoratorName}({ ... }) can't be empty ` +
-                `at ${target.constructor.name}#${propertyKey.toString()}.`);
+                `at ${target.constructor.name}#${propertyKey.toString()}. Either remove the "union" option or provide it with at least one type.`);
         }
         if (opts.union) {
             if (opts.name) {
                 throw new TypeError(`xml-class-transformer: The "union" option is not compatible with the "name" option at ` +
                     `${target.constructor.name}#${propertyKey.toString()}. ` +
-                    `XML element names for the union memebers should be specified at ` +
-                    `the union memeber classes.`);
+                    `XML element names for the union members should be specified at ` +
+                    `the union member classes.`);
             }
         }
         else {
             opts.name = opts.name || propertyKey;
         }
-        if (opts.union &&
-            // opts.union() can potentially return undefineds in case if there are circular dependencies.
+        if (opts.union) {
+            // opts.union() at the moment of running this peace of code can potentially return
+            // undefineds as the value of some elements in case if there are circular dependencies.
             // But the primitive values constructors (String, Number and Boolean) are always defined.
             // So it's okay to check them like this:
-            (opts.union().includes(String) ||
-                opts.union().includes(Number) ||
-                opts.union().includes(Boolean))) {
-            throw new TypeError(`xml-class-transformer: unions of primitive types (String, Number or Boolean) are not supported. ` +
-                `Fix it in the decorator @${decoratorName}({ ` +
-                `union: ${serializeUnionForLog(opts.union())}, ... }) ` +
-                `at "${target.constructor.name}#${propertyKey.toString()}".`);
+            const unionArr = opts.union();
+            const foundPrimitiveType = unionArr.find((type) => isPrimitiveType(type));
+            if (foundPrimitiveType) {
+                throw new TypeError(`xml-class-transformer: unions of primitive types (String, Number or Boolean) are not supported. ` +
+                    `Fix it in the decorator @${decoratorName}({ ` +
+                    `union: ${serializeUnionForLog(unionArr)}, ... }) ` +
+                    `at "${target.constructor.name}#${propertyKey.toString()}".`);
+            }
         }
         registry.setPropertyOptions(target.constructor, propertyKey, opts);
     };
 }
 
 exports.XmlAttribute = XmlAttribute;
-exports.XmlEntity = XmlEntity;
-exports.XmlProperty = XmlProperty;
+exports.XmlChardata = XmlChardata;
+exports.XmlChildElem = XmlChildElem;
+exports.XmlComments = XmlComments;
+exports.XmlElem = XmlElem;
 exports.classToXml = classToXml;
 exports.xmlToClass = xmlToClass;
 //# sourceMappingURL=index.js.map

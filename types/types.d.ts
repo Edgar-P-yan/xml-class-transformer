@@ -7,7 +7,7 @@ import type * as xmljs from 'xml-js';
  * Note that it is okay and even recommended to give your classes a constructor like this:
  * ```ts
  * class SomeXmlElement {
- *  ...
+ *   ...
  *   constructor(seed?: SomeXmlElement) {
  *     Object.assign(this, seed || {})
  *   }
@@ -21,12 +21,15 @@ import type * as xmljs from 'xml-js';
 export type XmlClass = {
     new (): any;
 };
-export type XmlPrimitiveType = typeof String | typeof Number | typeof Boolean;
+export type XmlPrimitiveType = typeof String | typeof Number | typeof Boolean | typeof BigInt;
 export type XmlType = XmlPrimitiveType | XmlClass;
-export interface XmlEntityOptions {
+export interface XmlElemOptions {
     /**
-     * xmlns attribute value.
+     * The xmlns attribute value. Specifies the default XML namespace.
      * This is just a shortcut for the `@XmlAttribute({ name: 'xmlns', type: () => String })` property decorator.
+     *
+     * @example
+     * { xmlns: 'http://s3.amazonaws.com/doc/2006-03-01/' }
      */
     xmlns?: string;
     /**
@@ -35,13 +38,15 @@ export interface XmlEntityOptions {
      */
     name?: string;
 }
-export interface XmlPropertyOptions {
+export interface XmlChildElemOptions {
     /**
      * Specify primitive type or class type for parsing and serializing.
+     *
      * @example
      * { type: () => String }
      * { type: () => Number }
      * { type: () => Boolean }
+     * { type: () => BigInt }
      * { type: () => CustomClass }
      *
      * Not compatible with the `union` option.
@@ -53,12 +58,9 @@ export interface XmlPropertyOptions {
      * The serialization of union types is performed in the same manner:
      * the name of the class is used as the XML element name.
      *
-     * Union types are not compatible with the `type`, `name` and `attr` options.
-     * It is not compatible with the `attr` option because bacause for now attribute values should
-     * only be primitive values, and parsing strings to unions can't be definitive.
+     * Union types are not compatible with the `type` and `name` options.
      *
-     * @todo test unions of primitive with class types
-     * @todo test unions of primitive types
+     * Primitive types are not supported in unions.
      *
      * @example
      * { union: () => [User, Admin] }
@@ -70,56 +72,21 @@ export interface XmlPropertyOptions {
      */
     array?: boolean;
     /**
-     * XML element name.
+     * A custom XML element name.
      * If not specified, the property name will be used.
-     * It is recommended to specify it explicitly for expressivenes.
+     * It is recommended to specify it explicitly for expressiveness.
      *
-     * Not compatible with the `chardata` option and the union types.
+     * Not compatible with the `chardata` option, bacause chardata is not an element.
+     * Not compatible with the `union` option, because union typed elements name is gathered from the union's members names.
      */
     name?: string | undefined;
-    /**
-     * If true, the property will be parsed and serialized as an attribute.
-     * Not compatible with the `chardata` and `union` options.
-     */
-    attr?: boolean;
-    /**
-     * If true, the property will be parsed and serialized as a character data.
-     * Not compatible with the `name`, `union`, `array` and `attr` options.
-     *
-     * It's only useful when you parse elements with a text node and no attributes.
-     *
-     * @todo maybe we can make it work with primitive unions?
-     *
-     * ```ts
-     * *XmlEntity({ name: 'Comment' })
-     * class Comment {
-     *   *XmlProperty({ chardata: true })
-     *   text: string;
-     *
-     *   *XmlProperty({ name: 'lang', attr: true })
-     *   lenguage: string;
-     *
-     *   constructor(d?: Comment) {
-     *     Object.assign(this, d || {});
-     *   }
-     * }
-     *
-     * classToXml(
-     *   new Comment({
-     *     text: 'This is awesome',
-     *     lenguage: 'en',
-     *   }),
-     * )
-     * ```
-     *
-     * Output:
-     * ```xml
-     * <Comment lang="en">This is awesome</Comment>
-     * ```
-     */
-    chardata?: boolean;
 }
-export interface XmlAttributeOptions extends Pick<XmlPropertyOptions, 'name'> {
+export interface XmlAttributeOptions {
+    /**
+     * XML attribute name.
+     * If not specified, the property name will be used.
+     */
+    name?: string | undefined;
     /**
      * XML Attributes can only be of primitive types.
      * Specify the primitive type for parsing and serializing the attribute.
@@ -127,6 +94,19 @@ export interface XmlAttributeOptions extends Pick<XmlPropertyOptions, 'name'> {
      * @example
      * { type: () => String }
      * { type: () => Number }
+     * { type: () => Boolean }
+     */
+    type: () => XmlPrimitiveType;
+}
+export interface XmlChardataOptions {
+    /**
+     * An XML chardata an only be of primitive types.
+     * Specify the primitive type for parsing and serializing the chardata.
+     *
+     * @example
+     * { type: () => String }
+     * { type: () => Number }
+     * { type: () => BigInt }
      * { type: () => Boolean }
      */
     type: () => XmlPrimitiveType;
