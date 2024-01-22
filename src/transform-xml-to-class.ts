@@ -23,7 +23,7 @@ export function xmlToClass<T extends XmlClass>(
 
 function xmlToClassInternal(element: xmljs.Element, _class: XmlType): any {
   if (isPrimitiveType(_class)) {
-    const text = getTextForElem(element);
+    const text = getChardataFromElem(element);
 
     return parsePrimitive(text, _class);
   }
@@ -37,10 +37,20 @@ function xmlToClassInternal(element: xmljs.Element, _class: XmlType): any {
   const inst = new _class();
 
   metadatas.properties.forEach((metadata, key) => {
-    if (metadata.attr) {
+    if (metadata.comments) {
+      const commentsAccumulated: string[] = [];
+
+      for (const childElem of element.elements || []) {
+        if (childElem.type === 'comment') {
+          commentsAccumulated.push(childElem.comment || '');
+        }
+      }
+
+      inst[key] = commentsAccumulated;
+    } else if (metadata.attr) {
       if (!metadata.name) {
         throw new Error(
-          `No name is specified for attribute ${key}. Specify it with @XmlProperty({ name: '...' }) decorator.`,
+          `xml-class-transformer: no name is specified for attribute ${key}. Specify it with @XmlAttribute({ name: '...' }) decorator.`,
         );
       }
 
@@ -71,7 +81,7 @@ function xmlToClassInternal(element: xmljs.Element, _class: XmlType): any {
 
           if (!tagName) {
             throw new Error(
-              `No name is specified for ${classType}. Specify it with the @XmlEntity({ name: '...' }) decorator.`,
+              `xml-class-transformer: no name is specified for ${classType}. Specify it with the @XmlElem({ name: '...' }) decorator.`,
             );
           }
 
@@ -122,7 +132,7 @@ function xmlToClassInternal(element: xmljs.Element, _class: XmlType): any {
 
         if (!tagName) {
           throw new Error(
-            `No name is specified for ${classType}. Specify it with the @XmlEntity({ name: '...' }) decorator.`,
+            `xml-class-transformer: no name is specified for ${classType}. Specify it with the @XmlElem({ name: '...' }) decorator.`,
           );
         }
 
@@ -155,16 +165,24 @@ function xmlToClassInternal(element: xmljs.Element, _class: XmlType): any {
   return inst;
 }
 
-function getTextForElem(el: xmljs.Element): string {
-  return (el.elements?.find((e) => e.type === 'text')?.text as string) || '';
+function getChardataFromElem(el: xmljs.Element): string {
+  let chardata = '';
+
+  for (const child of el.elements || []) {
+    if (child.type === 'text' && child.text) {
+      chardata += (child.text as string) || '';
+    }
+  }
+
+  return chardata;
 }
 
 function parsePrimitive(
   // Support numbers also
   value: string | number | undefined,
   classConstructor: XmlPrimitiveType | undefined,
-): number | string | boolean | null | undefined {
-  let result: number | string | boolean | null | undefined = undefined;
+): string | number | bigint | boolean | null | undefined {
+  let result: string | number | bigint | boolean | null | undefined = undefined;
 
   if (value === undefined) {
     result = undefined;
@@ -177,10 +195,11 @@ function parsePrimitive(
         // bacause there is no convenient way to represent an empty string as a number,
         // there is an idea to convert them to 0, but it's an implicit and non obvious behaviour.
         // Maybe a better idea would be to convert them to NaN just as parseFloat does.
-        castToStr === '' ? null : castToStr ? parseFloat(castToStr) : undefined;
+        castToStr === '' ? null : parseFloat(castToStr);
+    } else if (classConstructor === BigInt) {
+      result = castToStr === '' ? null : BigInt(castToStr);
     } else if (classConstructor === Boolean) {
-      result =
-        castToStr === '' ? null : castToStr ? castToStr === 'true' : undefined;
+      result = castToStr === '' ? null : castToStr === 'true';
     } else {
       // classConstructor is String or any other type, then fallback to String:
       // In case of the string dont cast empty strings to nulls

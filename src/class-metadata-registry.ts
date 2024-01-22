@@ -1,20 +1,21 @@
-import type { XmlClass, XmlEntityOptions, XmlPropertyOptions } from './types';
+import { InternalXmlPropertyOptions } from './internal-types';
+import type { XmlClass, XmlElemOptions } from './types';
 
 type ClassMetadatas = {
-  properties: Map<string, XmlPropertyOptions>;
-  entity: XmlEntityOptions;
+  properties: Map<string, InternalXmlPropertyOptions>;
+  entity: XmlElemOptions;
 };
 
 export class ClassMetadataRegistry {
   private registry = new Map<XmlClass, ClassMetadatas>();
 
-  setEntityOptions(clazz: XmlClass, opts: XmlEntityOptions): void {
-    const metadata = this.registry.get(clazz);
+  setEntityOptions(xClass: XmlClass, opts: XmlElemOptions): void {
+    const metadata = this.registry.get(xClass);
 
     if (metadata) {
       metadata.entity = opts;
     } else {
-      this.registry.set(clazz, {
+      this.registry.set(xClass, {
         entity: opts,
         properties: new Map(),
       });
@@ -22,11 +23,24 @@ export class ClassMetadataRegistry {
   }
 
   setPropertyOptions(
-    clazz: XmlClass,
+    xClass: XmlClass,
     propertyKey: string,
-    opts: XmlPropertyOptions,
+    opts: InternalXmlPropertyOptions,
   ): void {
-    const metadata = this.getOrCreate(clazz);
+    const metadata = this.getOrCreate(xClass);
+
+    if (opts.comments) {
+      for (const [searchingPropKey, searchingOpts] of metadata.properties) {
+        if (searchingOpts.comments) {
+          throw new Error(
+            `xml-class-transformer: only one @XmlComment() decorator is allowed per class. ` +
+              `Can not define @XmlComment() decorator for  ` +
+              `${xClass.name}#${propertyKey} since it's already used for ` +
+              `${xClass.name}#${searchingPropKey}.`,
+          );
+        }
+      }
+    }
 
     if (opts.name) {
       for (const [searchingPropKey, searchingOpts] of metadata.properties) {
@@ -34,8 +48,8 @@ export class ClassMetadataRegistry {
           throw new Error(
             `xml-class-transformer: can't use XML element name defined in ` +
               `{ name: ${JSON.stringify(opts.name)} } for ` +
-              `${clazz.name}#${propertyKey} since it's already used for ` +
-              `${clazz.name}#${searchingPropKey}. Change it to something else.`,
+              `${xClass.name}#${propertyKey} since it's already used for ` +
+              `${xClass.name}#${searchingPropKey}. Change it to something else.`,
           );
         }
 
@@ -45,7 +59,7 @@ export class ClassMetadataRegistry {
         if (opts.chardata && searchingOpts.chardata) {
           throw new Error(
             `xml-class-transformer: an XML element can have only one chardata property. ` +
-              `Both ${clazz.name}#${propertyKey} and ${clazz.name}#${searchingOpts.name} ` +
+              `Both ${xClass.name}#${propertyKey} and ${xClass.name}#${searchingOpts.name} ` +
               `are defined as chardata, which is not valid.`,
           );
         }
@@ -55,26 +69,26 @@ export class ClassMetadataRegistry {
     metadata.properties.set(propertyKey, opts);
   }
 
-  private getOrCreate(clazz: XmlClass): ClassMetadatas {
-    const existing = this.registry.get(clazz);
+  private getOrCreate(xClass: XmlClass): ClassMetadatas {
+    const existing = this.registry.get(xClass);
     if (existing) {
       return existing;
     } else {
       const newMetadatas: ClassMetadatas = {
         entity: {
-          name: clazz?.name,
+          name: xClass?.name,
         },
         properties: new Map(),
       };
 
-      this.registry.set(clazz, newMetadatas);
+      this.registry.set(xClass, newMetadatas);
 
       return newMetadatas;
     }
   }
 
-  get(clazz: XmlClass): ClassMetadatas | undefined {
-    return this.registry.get(clazz);
+  get(xClass: XmlClass): ClassMetadatas | undefined {
+    return this.registry.get(xClass);
   }
 }
 

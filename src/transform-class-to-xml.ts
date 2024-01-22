@@ -54,7 +54,7 @@ function classToXmlInternal(
 
   if (!elemName) {
     throw new Error(
-      `No XML name is specified for the class "${entityConstructor?.name}". Specify it with the @XmlEntity({ name: '...' }) decorator.`,
+      `xml-class-transformer: no XML name is specified for the class "${entityConstructor?.name}". Specify it with the @XmlElem({ name: '...' }) decorator.`,
     );
   }
 
@@ -68,10 +68,20 @@ function classToXmlInternal(
       return;
     }
 
-    if (opts.attr) {
+    if (opts.comments) {
+      if (Array.isArray(entity[classKey])) {
+        for (const comment of entity[classKey]) {
+          children.push({
+            type: 'comment',
+            comment:
+              comment === null || comment === undefined ? '' : `${comment}`,
+          });
+        }
+      }
+    } else if (opts.attr) {
       if (!opts.name) {
         throw new Error(
-          `No name is specified for the property ${entityConstructor?.name}#${classKey}. Specify it with the @XmlProperty({ name: '...' }) decorator.`,
+          `xml-class-transformer: no name is specified for the property ${entityConstructor?.name}#${classKey}. Specify it with the @XmlAttribute({ name: '...' }) decorator.`,
         );
       }
 
@@ -104,7 +114,7 @@ function classToXmlInternal(
     } else if (opts.type && isPrimitiveType(opts.type())) {
       if (!opts.name) {
         throw new Error(
-          `No name is specified for property ${entityConstructor?.name}#${classKey}. Specify it with @XmlProperty({ name: '...' }) decorator.`,
+          `xml-class-transformer: no name is specified for property ${entityConstructor?.name}#${classKey}. Specify it with @XmlChildElem({ name: '...' }) decorator.`,
         );
       }
       children.push(

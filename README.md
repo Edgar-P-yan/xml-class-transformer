@@ -27,12 +27,12 @@ yarn add xml-class-transformer
 ## Quick example
 
 ```ts
-@XmlEntity({ name: 'Article' })
+@XmlElem({ name: 'Article' })
 class Article {
-  @XmlProperty({ type: () => String, name: 'Title' })
+  @XmlChildElem({ type: () => String, name: 'Title' })
   title: string;
 
-  @XmlProperty({ type: () => String, name: 'Content' })
+  @XmlChildElem({ type: () => String, name: 'Content' })
   content: string;
 
   constructor(d?: Article) {
@@ -55,6 +55,7 @@ console.log(parsedArticle); // Article { title: 'Some title', content: 'The cont
 - XML Arrays, including arrays with union types (e.g. `@XmlProperty({ type: () => [Employee, Manager], array: true }) users: (Employee | Manager)[]`).
 - XML Attributes.
 - XML Declarations (`<?xml version="1.0" encoding="UTF-8"?>`).
+- XML Comments
 - Battle-tested in production and unit coverage "> 80%".
 - Complex and nested structures.
 - Transformation and validation (with `class-transformer` and `class-validator`).
@@ -64,12 +65,12 @@ console.log(parsedArticle); // Article { title: 'Some title', content: 'The cont
 These are features for more uncommon usage, most projects will not need them, but I
 might add support for them in the future.
 
-- Comments Support
 - CDATA Support
 - XML Namespaces
 - Custom ordering
 - Multiple chardata entries with the support for specified ordering.
-- CLI tool for automatically generating class declaration out of an XML input. Something similar to what does [miku/zek](https://github.com/miku/zek) for GoLang.
+- Custom parsers/serializers
+- CLI tool for automatically generating class declarations out of an XML input. Something similar to what does [miku/zek](https://github.com/miku/zek) for GoLang.
 
 ## Table of Contents
 
@@ -95,21 +96,21 @@ The library is still on it's very early stage, but we already use it in producti
 
 ```typescript
 import {
-  XmlEntity,
-  XmlProperty,
+  XmlElem,
+  XmlChildElem,
   classToXml,
   xmlToClass,
 } from './xml-to-class-transformer';
 
-@XmlEntity({ name: 'Article' })
+@XmlElem({ name: 'Article' })
 class Article {
-  @XmlProperty({ type: () => String, name: 'Title' })
+  @XmlChildElem({ type: () => String, name: 'Title' })
   title: string;
 
-  @XmlProperty({ type: () => String, name: 'Content' })
+  @XmlChildElem({ type: () => String, name: 'Content' })
   content: string;
 
-  constructor(d?: Version) {
+  constructor(d?: Article) {
     Object.assign(this, d || {});
   }
 }
@@ -164,7 +165,9 @@ On the other hand serializing `null` is a bit tricky: XMLs don't have such thing
 
 ```ts
 class XmlNullProp {
-  @XmlProperty({ type: () => Number }) nullProp: number | null;
+  @XmlChildElem({ type: () => Number })
+  nullProp: number | null;
+
   constructor(d?: XmlNullProp) {
     Object.assign(this, d || {});
   }

@@ -1,11 +1,11 @@
-import { XmlEntity, XmlProperty, xmlToClass } from '../src/index';
+import { XmlElem, XmlChildElem, xmlToClass } from '../src/index';
 
-@XmlEntity({})
+@XmlElem({})
 class Comment {
-  @XmlProperty({ type: () => String })
+  @XmlChildElem({ type: () => String })
   author: string;
 
-  @XmlProperty({ type: () => String })
+  @XmlChildElem({ type: () => String })
   text: string;
 
   constructor(d?: Comment) {
@@ -13,15 +13,15 @@ class Comment {
   }
 }
 
-@XmlEntity({})
+@XmlElem({})
 class Article {
-  @XmlProperty({ type: () => String })
+  @XmlChildElem({ type: () => String })
   title: string;
 
-  @XmlProperty({ type: () => String })
+  @XmlChildElem({ type: () => String })
   content: string;
 
-  @XmlProperty({ type: () => Comment, array: true })
+  @XmlChildElem({ type: () => Comment, array: true })
   comments: Comment[];
 
   constructor(d?: Article) {

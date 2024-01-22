@@ -1,8 +1,8 @@
-import { XmlProperty } from '../../src';
+import { XmlChildElem } from '../../src';
 import { A } from './a';
 
 export class B {
-  @XmlProperty({ type: () => A })
+  @XmlChildElem({ type: () => A })
   a?: A;
 
   constructor(d?: B) {
