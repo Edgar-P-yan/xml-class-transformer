@@ -62,7 +62,7 @@ enable the library to construct them without passing any arguments.
 
 #### Defined in
 
-[src/types.ts:22](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b74494a/src/types.ts#L22)
+[src/types.ts:22](https://github.com/Edgar-P-yan/xml-class-transformer/blob/6a2ed5e/src/types.ts#L22)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:26](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b74494a/src/types.ts#L26)
+[src/types.ts:26](https://github.com/Edgar-P-yan/xml-class-transformer/blob/6a2ed5e/src/types.ts#L26)
 
 ___
 
@@ -82,7 +82,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:32](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b74494a/src/types.ts#L32)
+[src/types.ts:32](https://github.com/Edgar-P-yan/xml-class-transformer/blob/6a2ed5e/src/types.ts#L32)
 
 ## Functions
 
@@ -115,7 +115,7 @@ class SomeXmlElement {
 
 #### Defined in
 
-[src/decorators.ts:79](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b74494a/src/decorators.ts#L79)
+[src/decorators.ts:79](https://github.com/Edgar-P-yan/xml-class-transformer/blob/6a2ed5e/src/decorators.ts#L79)
 
 ___
 
@@ -165,7 +165,7 @@ Output:
 
 #### Defined in
 
-[src/decorators.ts:162](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b74494a/src/decorators.ts#L162)
+[src/decorators.ts:162](https://github.com/Edgar-P-yan/xml-class-transformer/blob/6a2ed5e/src/decorators.ts#L162)
 
 ___
 
@@ -202,7 +202,7 @@ class SomeElement {
 
 #### Defined in
 
-[src/decorators.ts:64](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b74494a/src/decorators.ts#L64)
+[src/decorators.ts:64](https://github.com/Edgar-P-yan/xml-class-transformer/blob/6a2ed5e/src/decorators.ts#L64)
 
 ___
 
@@ -245,7 +245,7 @@ Output:
 
 #### Defined in
 
-[src/decorators.ts:115](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b74494a/src/decorators.ts#L115)
+[src/decorators.ts:115](https://github.com/Edgar-P-yan/xml-class-transformer/blob/6a2ed5e/src/decorators.ts#L115)
 
 ___
 
@@ -287,7 +287,7 @@ class SomeXmlElement {
 
 #### Defined in
 
-[src/decorators.ts:31](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b74494a/src/decorators.ts#L31)
+[src/decorators.ts:31](https://github.com/Edgar-P-yan/xml-class-transformer/blob/6a2ed5e/src/decorators.ts#L31)
 
 ___
 
@@ -308,7 +308,7 @@ ___
 
 #### Defined in
 
-[src/transform-class-to-xml.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b74494a/src/transform-class-to-xml.ts#L6)
+[src/transform-class-to-xml.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/6a2ed5e/src/transform-class-to-xml.ts#L6)
 
 ___
 
@@ -335,4 +335,4 @@ ___
 
 #### Defined in
 
-[src/transform-xml-to-class.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b74494a/src/transform-xml-to-class.ts#L6)
+[src/transform-xml-to-class.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/6a2ed5e/src/transform-xml-to-class.ts#L6)

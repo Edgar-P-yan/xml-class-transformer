@@ -20,7 +20,7 @@ If not specified, the class name will be used.
 
 #### Defined in
 
-[src/types.ts:48](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b74494a/src/types.ts#L48)
+[src/types.ts:48](https://github.com/Edgar-P-yan/xml-class-transformer/blob/6a2ed5e/src/types.ts#L48)
 
 ___
 
@@ -39,4 +39,4 @@ This is just a shortcut for the `@XmlAttribute({ name: 'xmlns', type: () => Stri
 
 #### Defined in
 
-[src/types.ts:42](https://github.com/Edgar-P-yan/xml-class-transformer/blob/b74494a/src/types.ts#L42)
+[src/types.ts:42](https://github.com/Edgar-P-yan/xml-class-transformer/blob/6a2ed5e/src/types.ts#L42)
