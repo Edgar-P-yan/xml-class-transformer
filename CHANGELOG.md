@@ -1,11 +1,11 @@
 # Changelog
 
-## WIP v2.0.0
+## v2.0.0
 
-- separate decorators XmlAttribute, XmlChardata, XmlComments, XmlChildElem
+- separate decorators `XmlAttribute`, `XmlChardata`, `XmlComments`, `XmlChildElem`
 - add basic support for XML comments
 - add support for bigint as primitive type
-- rename XmlEntity to XmlElem, XmlProperty to XmlChildElem
+- rename `XmlEntity` to `XmlElem`, `XmlProperty` to `XmlChildElem`
 - concatenate text nodes when parsing chardata (before this only first text node was being parsed)
 - docs: added more JSDocs
 - internal: minor improvements and refactoring
