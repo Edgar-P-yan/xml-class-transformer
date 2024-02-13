@@ -1,14 +1,15 @@
-import type { AnyClass, XmlEntityOptions, XmlPropertyOptions } from './types';
+import { InternalXmlPropertyOptions } from './internal-types';
+import type { XmlClass, XmlElemOptions } from './types';
 type ClassMetadatas = {
-    properties: Map<string, XmlPropertyOptions>;
-    entity: XmlEntityOptions;
+    properties: Map<string, InternalXmlPropertyOptions>;
+    entity: XmlElemOptions;
 };
 export declare class ClassMetadataRegistry {
     private registry;
-    setEntityOptions(clazz: AnyClass, opts: XmlEntityOptions): void;
-    setPropertyOptions(clazz: AnyClass, propertyKey: string, opts: XmlPropertyOptions): void;
+    setEntityOptions(xClass: XmlClass, opts: XmlElemOptions): void;
+    setPropertyOptions(xClass: XmlClass, propertyKey: string, opts: InternalXmlPropertyOptions): void;
     private getOrCreate;
-    get(clazz: AnyClass): ClassMetadatas | undefined;
+    get(xClass: XmlClass): ClassMetadatas | undefined;
 }
 export declare const registry: ClassMetadataRegistry;
 export {};

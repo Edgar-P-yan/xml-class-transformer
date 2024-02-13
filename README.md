@@ -27,12 +27,12 @@ yarn add xml-class-transformer
 ## Quick example
 
 ```ts
-@XmlEntity({ name: 'Article' })
+@XmlElem({ name: 'Article' })
 class Article {
-  @XmlProperty({ type: String, name: 'Title' })
+  @XmlChildElem({ type: () => String, name: 'Title' })
   title: string;
 
-  @XmlProperty({ type: String, name: 'Content' })
+  @XmlChildElem({ type: () => String, name: 'Content' })
   content: string;
 
   constructor(d?: Article) {
@@ -51,10 +51,11 @@ console.log(parsedArticle); // Article { title: 'Some title', content: 'The cont
 ## Features
 
 - Declarative and easy TypeScript decorators.
-- Union types (`@XmlProperty({ union: [Employee, Manager] }) user: Employee | Manager;`).
-- XML Arrays, including arrays with union types (e.g. `@XmlProperty({ type: [Employee, Manager], array: true }) users: (Employee | Manager)[]`).
+- Union types (`@XmlChildElem({ union: () => [Employee, Manager] }) user: Employee | Manager;`).
+- XML Arrays, including arrays with union types (e.g. `@XmlChildElem({ type: () => [Employee, Manager], array: true }) users: (Employee | Manager)[]`).
 - XML Attributes.
 - XML Declarations (`<?xml version="1.0" encoding="UTF-8"?>`).
+- XML Comments
 - Battle-tested in production and unit coverage "> 80%".
 - Complex and nested structures.
 - Transformation and validation (with `class-transformer` and `class-validator`).
@@ -64,12 +65,12 @@ console.log(parsedArticle); // Article { title: 'Some title', content: 'The cont
 These are features for more uncommon usage, most projects will not need them, but I
 might add support for them in the future.
 
-- Comments Support
 - CDATA Support
 - XML Namespaces
 - Custom ordering
 - Multiple chardata entries with the support for specified ordering.
-- CLI tool for automatically generating class declaration out of an XML input. Something similar to what does [miku/zek](https://github.com/miku/zek) for GoLang.
+- Custom parsers/serializers
+- CLI tool for automatically generating class declarations out of an XML input. Something similar to what does [miku/zek](https://github.com/miku/zek) for GoLang.
 
 ## Table of Contents
 
@@ -91,25 +92,84 @@ Huge advantage of this approach is that you can also use `class-validator` and `
 
 The library is still on it's very early stage, but we already use it in production, so don't worry to experiment with it and file an issue or pull request if you want.
 
+## Usage
+
+Lets define our XML schema in the form of classes:
+
+```ts
+@XmlElem({ name: 'article' })
+class Article {
+  @XmlChildElem({ type: () => String })
+  title: string;
+
+  @XmlChildElem({ type: () => String, array: true })
+  authors: string[];
+
+  @XmlChildElem({ type: () => Review, array: true })
+  reviews: Review[];
+
+  @XmlComments()
+  xmlComments: string[];
+
+  constructor(article?: Article) {
+    Object.assign(this, article || {});
+  }
+}
+
+@XmlElem({ name: 'review' })
+class Review {
+  @XmlAttribute({ name: 'language', type: () => String })
+  lang: string;
+
+  @XmlAttribute({ name: 'date', type: () => String })
+  date: string;
+
+  @XmlAttribute({ name: 'author-id', type: () => Number })
+  authorId: number;
+
+  @XmlChardata({ type: () => String })
+  text: string;
+
+  constructor(review?: Review) {
+    Object.assign(this, review || {});
+  }
+}
+```
+
+The above class represents an XML element like this:
+
+```xml
+<article>
+  <title>Article 1</title>
+  <authors>Tom</authors>
+  <authors>Bob</authors>
+  <reviews language="en" date="2020-01-01" author-id="1">contents text</reviews>
+  <reviews language="en" date="2020-01-01" author-id="2">contents text</reviews>
+  <!--some comment-->
+  <!--some other comment-->
+</article>
+```
+
 ## Parsing XML to class
 
 ```typescript
 import {
-  XmlEntity,
-  XmlProperty,
+  XmlElem,
+  XmlChildElem,
+  XmlComments,
   classToXml,
   xmlToClass,
 } from './xml-to-class-transformer';
 
-@XmlEntity({ name: 'Article' })
+@XmlElem({ name: 'Article' })
 class Article {
-  @XmlProperty({ type: String, name: 'Title' })
+  @XmlChildElem({ type: () => String, name: 'Title' })
   title: string;
 
-  @XmlProperty({ type: String, name: 'Content' })
-  content: string;
+  @XmlComments()
+  comments: string[];
 
-  constructor(d?: Version) {
+  constructor(d?: Article) {
     Object.assign(this, d || {});
   }
 }
@@ -164,7 +224,9 @@ On the other hand serializing `null` is a bit tricky: XMLs don't have such thing
 
 ```ts
 class XmlNullProp {
-  @XmlProperty({ type: Number }) nullProp: number | null;
+  @XmlChildElem({ type: () => Number })
+  nullProp: number | null;
+
   constructor(d?: XmlNullProp) {
     Object.assign(this, d || {});
   }

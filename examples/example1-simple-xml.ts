@@ -1,11 +1,11 @@
-import { XmlEntity, XmlProperty, xmlToClass } from '../src/index';
+import { XmlElem, XmlChildElem, xmlToClass } from '../src/index';
 
-@XmlEntity({})
+@XmlElem({})
 class Article {
-  @XmlProperty({ type: String })
+  @XmlChildElem({ type: () => String })
   title: string;
 
-  @XmlProperty({ type: String })
+  @XmlChildElem({ type: () => String })
   content: string;
 
   constructor(article?: Article) {

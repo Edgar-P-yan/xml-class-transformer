@@ -1,19 +1,21 @@
 import { expect } from 'chai';
 import {
-  AnyClass,
+  XmlClass,
   classToXml,
-  XmlEntity,
+  XmlElem,
   XmlAttribute,
-  XmlProperty,
+  XmlChildElem,
   xmlToClass,
+  XmlChardata,
+  XmlComments,
 } from './index';
 
-@XmlEntity({ name: 'Bucket' })
+@XmlElem({ name: 'Bucket' })
 export class Bucket {
-  @XmlProperty({ name: 'Name', type: String })
+  @XmlChildElem({ name: 'Name', type: () => String })
   Name: string;
 
-  @XmlProperty({ name: 'CreationDate', type: String })
+  @XmlChildElem({ name: 'CreationDate', type: () => String })
   CreationDate: string;
 
   constructor(d?: Bucket) {
@@ -21,9 +23,9 @@ export class Bucket {
   }
 }
 
-@XmlEntity({ name: 'Buckets' })
+@XmlElem({ name: 'Buckets' })
 export class Buckets {
-  @XmlProperty({ name: 'Bucket', type: Bucket, array: true })
+  @XmlChildElem({ name: 'Bucket', type: () => Bucket, array: true })
   Bucket: Bucket[];
 
   constructor(d?: Buckets) {
@@ -31,9 +33,9 @@ export class Buckets {
   }
 }
 
-@XmlEntity({ name: 'ListAllMyBucketsResult' })
+@XmlElem({ name: 'ListAllMyBucketsResult' })
 export class ListAllMyBucketsResult {
-  @XmlProperty({ name: 'Buckets', type: Buckets })
+  @XmlChildElem({ name: 'Buckets', type: () => Buckets })
   Buckets: Buckets;
 
   constructor(d?: ListAllMyBucketsResult) {
@@ -41,12 +43,12 @@ export class ListAllMyBucketsResult {
   }
 }
 
-@XmlEntity({ name: 'Version' })
+@XmlElem({ name: 'Version' })
 class Version {
-  @XmlProperty({ type: String, name: 'Id' })
+  @XmlChildElem({ type: () => String, name: 'Id' })
   Id: string;
 
-  @XmlProperty({ type: String, name: 'Size' })
+  @XmlChildElem({ type: () => String, name: 'Size' })
   Size: string;
 
   constructor(d?: Version) {
@@ -54,9 +56,9 @@ class Version {
   }
 }
 
-@XmlEntity({ name: 'DeleteMarker' })
+@XmlElem({ name: 'DeleteMarker' })
 class DeleteMarker {
-  @XmlProperty({ type: String, name: 'Id' })
+  @XmlChildElem({ type: () => String, name: 'Id' })
   Id: string;
 
   constructor(d?: DeleteMarker) {
@@ -64,12 +66,12 @@ class DeleteMarker {
   }
 }
 
-@XmlEntity({
+@XmlElem({
   xmlns: 'http://s3.amazonaws.com/doc/2006-03-01/',
   name: 'ListVersions',
 })
 class ListVersions {
-  @XmlProperty({ union: [Version, DeleteMarker], array: true })
+  @XmlChildElem({ union: () => [Version, DeleteMarker], array: true })
   Versions: (Version | DeleteMarker)[];
 
   constructor(d?: ListVersions) {
@@ -237,10 +239,10 @@ describe('xml-class-transformer', () => {
       // @ts-expect-error
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       class Article {
-        @XmlProperty({ name: 'Title', type: String })
+        @XmlChildElem({ name: 'Title', type: () => String })
         Title: string;
 
-        @XmlProperty({ name: 'Title', type: String })
+        @XmlChildElem({ name: 'Title', type: () => String })
         Author: string;
       }
     }).to.throw(
@@ -252,17 +254,17 @@ describe('xml-class-transformer', () => {
   });
 
   it('decorator XmlAttribute works', () => {
-    @XmlEntity({ name: 'article' })
+    @XmlElem({ name: 'article' })
     class Article {
-      @XmlAttribute({ type: String })
+      @XmlAttribute({ type: () => String })
       language: string;
 
-      @XmlAttribute({ name: 'comments', type: Number })
+      @XmlAttribute({ name: 'comments', type: () => Number })
       comments: number;
 
-      @XmlProperty({
+      @XmlChildElem({
         name: 'title',
-        type: String,
+        type: () => String,
       })
       title: string;
 
@@ -297,15 +299,15 @@ describe('xml-class-transformer', () => {
     });
   });
 
-  it('throws if more than one chardata is defined', () => {
+  it('throws if more than one is defined', () => {
     expect(() => {
       // @ts-expect-error
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       class TestMultipleCharDatas {
-        @XmlProperty({ type: String, chardata: true })
+        @XmlChardata({ type: () => String })
         firstCharData: string;
 
-        @XmlProperty({ type: String, chardata: true })
+        @XmlChardata({ type: () => String })
         secondCharDate: string;
       }
     }).to.throw('an XML element can have only one chardata property');
@@ -313,7 +315,7 @@ describe('xml-class-transformer', () => {
 
   it('chardata works', () => {
     class TestChardata {
-      @XmlProperty({ type: String, chardata: true })
+      @XmlChardata({ type: () => String })
       chardata: string;
 
       constructor(d?: TestChardata) {
@@ -322,7 +324,7 @@ describe('xml-class-transformer', () => {
     }
 
     class TestNumericChardata {
-      @XmlProperty({ type: Number, chardata: true })
+      @XmlChardata({ type: () => Number })
       chardata: number;
 
       constructor(d?: TestNumericChardata) {
@@ -345,7 +347,7 @@ describe('xml-class-transformer', () => {
 
   it('nulls for strings transform to empty xml strings, and stay as empty strings when parsed back', () => {
     class NullPropsStr {
-      @XmlProperty({ type: String })
+      @XmlChildElem({ type: () => String })
       nullPropStr: string | null;
 
       constructor(d?: NullPropsStr) {
@@ -365,7 +367,7 @@ describe('xml-class-transformer', () => {
 
   it('nulls for numbers transform to empty xml strings, and back to nulls when parsed back', () => {
     class NullPropsNumber {
-      @XmlProperty({ type: Number })
+      @XmlChildElem({ type: () => Number })
       nullPropNumber: number | null;
 
       constructor(d?: NullPropsNumber) {
@@ -382,7 +384,7 @@ describe('xml-class-transformer', () => {
 
   it('nulls for booleans transform to empty xml strings, and back to nulls when parsed back', () => {
     class NullPropsBoolean {
-      @XmlProperty({ type: Number })
+      @XmlChildElem({ type: () => Number })
       nullPropBoolean: boolean | null;
 
       constructor(d?: NullPropsBoolean) {
@@ -399,7 +401,7 @@ describe('xml-class-transformer', () => {
 
   it('undefined for strings does not emit the xml element, and stay as undefined when parsed back', () => {
     class UndefinedPropsStr {
-      @XmlProperty({ type: String })
+      @XmlChildElem({ type: () => String })
       undefinedPropStr: string | undefined;
 
       constructor(d?: UndefinedPropsStr) {
@@ -416,7 +418,7 @@ describe('xml-class-transformer', () => {
 
   it('undefined for numbers does not emit the xml element, and stay as undefined when parsed back', () => {
     class UndefinedPropsNumber {
-      @XmlProperty({ type: Number })
+      @XmlChildElem({ type: () => Number })
       undefinedPropNumber: number | undefined;
 
       constructor(d?: UndefinedPropsNumber) {
@@ -433,12 +435,12 @@ describe('xml-class-transformer', () => {
 
   it('undefined and null for nested xml entities are not emitted, and converted to undefined when parsed back', () => {
     class NestedObj {
-      @XmlProperty({ chardata: true, type: String })
+      @XmlChardata({ type: () => String })
       text: string;
     }
 
     class UndefinedOrNullForObj {
-      @XmlProperty({ type: NestedObj })
+      @XmlChildElem({ type: () => NestedObj })
       obj: NestedObj | undefined | null;
 
       constructor(d?: UndefinedOrNullForObj) {
@@ -462,12 +464,12 @@ describe('xml-class-transformer', () => {
 
   it('empty and null arrays stay as empty arrays', () => {
     class TestEmptyArrayItem {
-      @XmlProperty({ type: String })
+      @XmlChildElem({ type: () => String })
       someItemProp: string;
     }
 
     class TestEmptyArraysRoot {
-      @XmlProperty({ type: TestEmptyArrayItem, array: true })
+      @XmlChildElem({ type: () => TestEmptyArrayItem, array: true })
       emptyOrNullOrUndefinedArray: TestEmptyArrayItem[] | null | undefined;
 
       constructor(d?: TestEmptyArraysRoot) {
@@ -498,26 +500,26 @@ describe('xml-class-transformer', () => {
 
   it('dont support unions of primitives', () => {
     expect(() => {
-      @XmlEntity()
+      @XmlElem()
       // @ts-expect-error
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       class _UnionOfPrimitives {
-        @XmlProperty({ union: [String, Number] })
+        @XmlChildElem({ union: () => [String, Number] })
         prop: string | number;
       }
     }).throws(TypeError, 'unions of primitive types');
   });
 
   it('different configs mixed', () => {
-    @XmlEntity()
+    @XmlElem()
     class StrProps {
-      @XmlProperty({ type: String })
+      @XmlChildElem({ type: () => String })
       strPropWODefName: string;
 
-      @XmlProperty({ name: 'strPropWithDefinedName', type: String })
+      @XmlChildElem({ name: 'strPropWithDefinedName', type: () => String })
       strPropDefName: string;
 
-      @XmlProperty({ name: 'diffName', type: String })
+      @XmlChildElem({ name: 'diffName', type: () => String })
       strPropDiffName: string;
 
       constructor(d?: StrProps) {
@@ -527,10 +529,10 @@ describe('xml-class-transformer', () => {
 
     // Without decorator, should work as well
     class NumberProps {
-      @XmlProperty({ type: Number })
+      @XmlChildElem({ type: () => Number })
       integerProp: number;
 
-      @XmlProperty({ type: Number })
+      @XmlChildElem({ type: () => Number })
       floatProp: number;
 
       constructor(d?: NumberProps) {
@@ -539,7 +541,7 @@ describe('xml-class-transformer', () => {
     }
 
     class SomeElement {
-      @XmlProperty({ type: String })
+      @XmlChildElem({ type: () => String })
       title: string;
 
       constructor(d?: SomeElement) {
@@ -548,7 +550,7 @@ describe('xml-class-transformer', () => {
     }
 
     class AnotherElement {
-      @XmlProperty({ type: Number })
+      @XmlChildElem({ type: () => Number })
       val: number;
 
       constructor(d?: AnotherElement) {
@@ -557,10 +559,10 @@ describe('xml-class-transformer', () => {
     }
 
     class CharDataElemWithAttr {
-      @XmlAttribute({ type: String })
+      @XmlAttribute({ type: () => String })
       attr: string;
 
-      @XmlProperty({ chardata: true, type: String })
+      @XmlChardata({ type: () => String })
       strChardata: string;
 
       constructor(d?: CharDataElemWithAttr) {
@@ -569,10 +571,10 @@ describe('xml-class-transformer', () => {
     }
 
     class NumberCharData {
-      @XmlAttribute({ type: Number })
+      @XmlAttribute({ type: () => Number })
       attr: number;
 
-      @XmlProperty({ chardata: true, type: Number })
+      @XmlChardata({ type: () => Number })
       strChardata: number;
 
       constructor(d?: NumberCharData) {
@@ -580,9 +582,9 @@ describe('xml-class-transformer', () => {
       }
     }
 
-    @XmlEntity({ name: 'DiffNameAdmin' })
+    @XmlElem({ name: 'DiffNameAdmin' })
     class Admin {
-      @XmlProperty({ type: String })
+      @XmlChildElem({ type: () => String })
       adminName: string;
 
       constructor(d?: Admin) {
@@ -590,9 +592,9 @@ describe('xml-class-transformer', () => {
       }
     }
 
-    @XmlEntity({ name: 'DiffNameUser' })
+    @XmlElem({ name: 'DiffNameUser' })
     class User {
-      @XmlProperty({ type: String })
+      @XmlChildElem({ type: () => String })
       userName: string;
 
       constructor(d?: User) {
@@ -600,52 +602,63 @@ describe('xml-class-transformer', () => {
       }
     }
     class SomeComplexXmlElement {
-      @XmlAttribute({ type: String })
+      @XmlAttribute({ type: () => String })
       rootAttrStr: string;
 
-      @XmlAttribute({ type: Number })
+      @XmlAttribute({ type: () => Number })
       rootAttrNumber: number;
 
-      @XmlAttribute({ type: Number })
+      @XmlAttribute({ type: () => Number })
       possiblyNullNumberProp: number | null;
 
-      @XmlAttribute({ type: Number })
+      @XmlAttribute({ type: () => Number })
       possiblyUndefinedNumberProp: number | undefined;
 
-      @XmlProperty({ type: StrProps })
+      @XmlChildElem({ type: () => StrProps })
       strProps: StrProps;
 
-      @XmlProperty({ type: NumberProps })
+      @XmlChildElem({ type: () => NumberProps })
       numberProps: NumberProps;
 
-      @XmlProperty({ type: Boolean })
+      @XmlChildElem({ type: () => BigIntProps })
+      bigintProps: BigIntProps;
+
+      @XmlChildElem({ type: () => Boolean })
       boolProp: boolean;
 
-      @XmlProperty({ type: SomeElement })
+      @XmlChildElem({ type: () => SomeElement })
       possiblyNullObj: SomeElement | null;
 
-      @XmlProperty({ type: SomeElement })
+      @XmlChildElem({ type: () => SomeElement })
       possiblyUndefinedObj: SomeElement | undefined;
 
-      @XmlProperty({ type: String })
+      @XmlChildElem({ type: () => String })
       possiblyNullStrProp: string | null;
 
-      @XmlProperty({ type: String })
+      @XmlChildElem({ type: () => String })
       possiblyUndefinedStrProp: string | undefined;
 
-      @XmlProperty({ union: [SomeElement, AnotherElement] })
+      @XmlChildElem({ union: () => [SomeElement, AnotherElement] })
       basicUnionObj: SomeElement | AnotherElement;
 
-      @XmlProperty({ type: CharDataElemWithAttr })
+      @XmlChildElem({ type: () => CharDataElemWithAttr })
       elemWithCharData: CharDataElemWithAttr;
 
-      @XmlProperty({ type: NumberCharData })
-      numberChatdata: NumberCharData;
+      @XmlChildElem({ type: () => NumberCharData })
+      numberChardata: NumberCharData;
 
-      @XmlProperty({ union: [User, Admin], array: true })
+      @XmlChildElem({ union: () => [User, Admin], array: true })
       usersOrAdmins: (User | Admin)[];
 
       constructor(d?: SomeComplexXmlElement) {
+        Object.assign(this, d || {});
+      }
+    }
+
+    class BigIntProps {
+      @XmlChildElem({ type: () => BigInt })
+      bigintProp: bigint;
+      constructor(d?: BigIntProps) {
         Object.assign(this, d || {});
       }
     }
@@ -664,6 +677,9 @@ describe('xml-class-transformer', () => {
         integerProp: Number.MAX_SAFE_INTEGER,
         floatProp: 10.0101,
       }),
+      bigintProps: new BigIntProps({
+        bigintProp: BigInt(42),
+      }),
       boolProp: true,
 
       possiblyNullObj: null, // will be undefined when we convert it back to classes
@@ -681,7 +697,7 @@ describe('xml-class-transformer', () => {
           'some literal value that should be escaped test with <eval haha="fu"></eval>',
       }),
 
-      numberChatdata: new NumberCharData({
+      numberChardata: new NumberCharData({
         attr: 234.34,
         strChardata: 43747.23423,
       }),
@@ -719,14 +735,16 @@ describe('xml-class-transformer', () => {
     console.log(xml);
 
     expect(xml).eq(
-      '<?xml version="1.0" encoding="UTF-8"?><SomeComplexXmlElement rootAttrStr="a string attribute" ' +
+      '<?xml version="1.0" encoding="UTF-8"?>' +
+        '<SomeComplexXmlElement rootAttrStr="a string attribute" ' +
         'rootAttrNumber="123.123124" possiblyNullNumberProp=""><strProps><strPropWODefName>another value' +
         '</strPropWODefName><strPropWithDefinedName>some value</strPropWithDefinedName><diffName>some other ' +
         'value</diffName></strProps><numberProps><integerProp>9007199254740991</integerProp><floatProp>10.0101' +
-        '</floatProp></numberProps><boolProp>true</boolProp><possiblyNullStrProp></possiblyNullStrProp><AnotherElement>' +
+        '</floatProp></numberProps><bigintProps><bigintProp>42</bigintProp></bigintProps>' +
+        '<boolProp>true</boolProp><possiblyNullStrProp></possiblyNullStrProp><AnotherElement>' +
         '<val>10</val></AnotherElement><elemWithCharData attr="some attr val">some literal value that should be escaped ' +
-        'test with &lt;eval haha="fu"&gt;&lt;/eval&gt;</elemWithCharData><numberChatdata attr="234.34">43747.23423' +
-        '</numberChatdata><DiffNameUser><userName>user name</userName></DiffNameUser><DiffNameAdmin><adminName>aasdf' +
+        'test with &lt;eval haha="fu"&gt;&lt;/eval&gt;</elemWithCharData><numberChardata attr="234.34">43747.23423' +
+        '</numberChardata><DiffNameUser><userName>user name</userName></DiffNameUser><DiffNameAdmin><adminName>aasdf' +
         '</adminName></DiffNameAdmin><DiffNameAdmin><adminName>asdfwereqwr</adminName></DiffNameAdmin><DiffNameUser>' +
         '<userName>werwer asdf</userName></DiffNameUser></SomeComplexXmlElement>',
     );
@@ -743,11 +761,117 @@ describe('xml-class-transformer', () => {
       ), // nulls and undefineds should be lost when converting back to classes
     });
   });
+
+  describe('comments', () => {
+    @XmlElem()
+    class TestComments {
+      @XmlComments()
+      comments?: string[] | null;
+
+      constructor(d?: TestComments) {
+        Object.assign(this, d || {});
+      }
+    }
+
+    @XmlElem()
+    class TestCommentsWithOtherElems {
+      @XmlChildElem({ type: () => String })
+      elemAbove?: string;
+
+      @XmlComments()
+      comments?: string[] | null;
+
+      @XmlChildElem({ type: () => String })
+      elemBelow?: string;
+
+      constructor(d?: TestCommentsWithOtherElems) {
+        Object.assign(this, d || {});
+      }
+    }
+
+    it('parses and serializes one and more comments', () => {
+      testBidirConversion(
+        new TestComments({ comments: ['some comment'] }),
+        TestComments,
+        '<?xml version="1.0" encoding="UTF-8"?><TestComments><!--some comment--></TestComments>',
+      );
+
+      testBidirConversion(
+        new TestComments({ comments: ['some comment', 'another comment'] }),
+        TestComments,
+        '<?xml version="1.0" encoding="UTF-8"?><TestComments><!--some comment--><!--another comment--></TestComments>',
+      );
+
+      testBidirConversion(
+        new TestComments({}),
+        TestComments,
+        '<?xml version="1.0" encoding="UTF-8"?><TestComments/>',
+        { comments: [] },
+      );
+
+      testBidirConversion(
+        new TestComments({ comments: null }),
+        TestComments,
+        '<?xml version="1.0" encoding="UTF-8"?><TestComments/>',
+        { comments: [] },
+      );
+    });
+
+    it('parses and serializes comments with other elements', () => {
+      testBidirConversion(
+        new TestCommentsWithOtherElems({
+          elemAbove: 'str',
+          comments: ['comments'],
+          elemBelow: 'str2',
+        }),
+        TestCommentsWithOtherElems,
+        '<?xml version="1.0" encoding="UTF-8"?><TestCommentsWithOtherElems>' +
+          '<elemAbove>str</elemAbove><!--comments--><elemBelow>str2</elemBelow>' +
+          '</TestCommentsWithOtherElems>',
+        { elemAbove: 'str', comments: ['comments'], elemBelow: 'str2' },
+      );
+    });
+  });
+
+  it('works with arrays of primitives', () => {
+    @XmlElem()
+    class ArrayOfPrimitives {
+      @XmlChildElem({ type: () => String, array: true })
+      prop: string[];
+
+      constructor(d?: ArrayOfPrimitives) {
+        Object.assign(this, d || {});
+      }
+    }
+
+    testBidirConversion(
+      new ArrayOfPrimitives({ prop: ['a', 'b', 'c'] }),
+      ArrayOfPrimitives,
+      '<?xml version="1.0" encoding="UTF-8"?><ArrayOfPrimitives><prop>a</prop><prop>b</prop><prop>c</prop></ArrayOfPrimitives>',
+      { prop: ['a', 'b', 'c'] },
+    );
+  });
+
+  it('concatenates text nodes', () => {
+    @XmlElem()
+    class ConcatTextNodes {
+      @XmlChardata({ type: () => String })
+      chardata: string;
+    }
+
+    const xml = `
+      <ConcatTextNodes>first text node <UnknownElem />second text node <!-- some comment -->third text node</ConcatTextNodes>
+    `;
+
+    expect(xmlToClass(xml, ConcatTextNodes)).deep.eq({
+      chardata: 'first text node second text node third text node',
+    });
+  });
 });
 
 function testBidirConversion(
   input: any,
-  classType: AnyClass,
+  classType: XmlClass,
   expectedXml: string,
   expectedObj?: any,
 ): void {

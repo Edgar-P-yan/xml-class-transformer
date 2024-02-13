@@ -1,7 +1,7 @@
 import xmljs from 'xml-js';
 import { registry } from './class-metadata-registry';
-import { ClassToXmlOptions } from './types';
-import { errUnknownClass } from './common';
+import { ClassToXmlOptions, XmlType } from './types';
+import { errUnknownClass, isPrimitiveType } from './common';
 
 export function classToXml(entity: any, options?: ClassToXmlOptions): string {
   const tree = classToXmlInternal(entity, '', entity.constructor);
@@ -27,9 +27,9 @@ export function classToXml(entity: any, options?: ClassToXmlOptions): string {
 function classToXmlInternal(
   entity: any,
   name: string | undefined,
-  entityConstructor: any,
+  entityConstructor: XmlType,
 ): xmljs.Element {
-  if ([String, Number, Boolean].includes(entityConstructor)) {
+  if (isPrimitiveType(entityConstructor)) {
     const text = entity === null ? '' : `${entity}`;
 
     return {
@@ -54,7 +54,7 @@ function classToXmlInternal(
 
   if (!elemName) {
     throw new Error(
-      `No XML name is specified for the class "${entityConstructor?.name}". Specify it with the @XmlEntity({ name: '...' }) decorator.`,
+      `xml-class-transformer: no XML name is specified for the class "${entityConstructor?.name}". Specify it with the @XmlElem({ name: '...' }) decorator.`,
     );
   }
 
@@ -68,10 +68,20 @@ function classToXmlInternal(
       return;
     }
 
-    if (opts.attr) {
+    if (opts.comments) {
+      if (Array.isArray(entity[classKey])) {
+        for (const comment of entity[classKey]) {
+          children.push({
+            type: 'comment',
+            comment:
+              comment === null || comment === undefined ? '' : `${comment}`,
+          });
+        }
+      }
+    } else if (opts.attr) {
       if (!opts.name) {
         throw new Error(
-          `No name is specified for the property ${entityConstructor?.name}#${classKey}. Specify it with the @XmlProperty({ name: '...' }) decorator.`,
+          `xml-class-transformer: no name is specified for the property ${entityConstructor?.name}#${classKey}. Specify it with the @XmlAttribute({ name: '...' }) decorator.`,
         );
       }
 
@@ -97,17 +107,19 @@ function classToXmlInternal(
         // If it is a union then we can't guess required class out of it.
         // In those cases users should give to the library actual class instances (aka new MyEntity({...}))
         // so the library can guess the class type just by looking at the myEntity.constructor
-        const classConstructor = opts.union ? e.constructor : opts.type;
+        const classConstructor = opts.union ? e.constructor : opts.type!();
         // The opts.name will be undefined if !!opts.union, but thats ok.
         children.push(classToXmlInternal(e, opts.name, classConstructor));
       });
-    } else if ([String, Number, Boolean].includes(opts.type as any)) {
+    } else if (opts.type && isPrimitiveType(opts.type())) {
       if (!opts.name) {
         throw new Error(
-          `No name is specified for property ${entityConstructor?.name}#${classKey}. Specify it with @XmlProperty({ name: '...' }) decorator.`,
+          `xml-class-transformer: no name is specified for property ${entityConstructor?.name}#${classKey}. Specify it with @XmlChildElem({ name: '...' }) decorator.`,
         );
       }
-      children.push(classToXmlInternal(entity[classKey], opts.name, opts.type));
+      children.push(
+        classToXmlInternal(entity[classKey], opts.name, opts.type()),
+      );
     } else if (opts.union) {
       // should work with primitive types also
       const classConstructor = entity[classKey].constructor;
@@ -123,7 +135,7 @@ function classToXmlInternal(
           classToXmlInternal(
             entity[classKey],
             opts.name,
-            opts.union ? entity[classKey].constructor : opts.type,
+            opts.union ? entity[classKey].constructor : opts.type!(),
           ),
         );
       }

@@ -1,12 +1,21 @@
 export { classToXml } from './transform-class-to-xml';
 export { xmlToClass } from './transform-xml-to-class';
 
-export { XmlEntity, XmlProperty, XmlAttribute } from './decorators';
+export {
+  XmlElem,
+  XmlChildElem,
+  XmlAttribute,
+  XmlChardata,
+  XmlComments,
+} from './decorators';
 
 export type {
-  AnyClass,
+  XmlClass,
   ClassToXmlOptions,
-  XmlEntityOptions,
-  XmlPropertyOptions,
+  XmlElemOptions,
+  XmlChildElemOptions,
+  XmlAttributeOptions,
+  XmlChardataOptions,
+  XmlPrimitiveType,
   XmlType,
 } from './types';
