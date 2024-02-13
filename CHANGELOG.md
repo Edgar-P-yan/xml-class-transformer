@@ -2,16 +2,17 @@
 
 ## v2.0.0
 
+[Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v1.0.3...v2.0.0)
+
 - separate decorators `XmlAttribute`, `XmlChardata`, `XmlComments`, `XmlChildElem`
 - add basic support for XML comments
-- add support for bigint as primitive type
+- add support for `bigint` as a primitive type
 - rename `XmlEntity` to `XmlElem`, `XmlProperty` to `XmlChildElem`
-- concatenate text nodes when parsing chardata (before this only first text node was being parsed)
+- concatenate all of the text nodes when parsing chardata (previously only the first text node was being parsed)
 - docs: added more JSDocs
-- internal: minor improvements and refactoring
-
 - support circular dependencies by specifying `type` and `union` only via functions
 - rename `AnyClass` to `XmlClass` and add comments about constructor arguments
+- internal: minor improvements and refactoring
 - internal: fix `serializeUnionForLog` error messages
 - internal: add `isPrimitiveType` helper
 
