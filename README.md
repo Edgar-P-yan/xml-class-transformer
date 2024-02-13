@@ -51,8 +51,8 @@ console.log(parsedArticle); // Article { title: 'Some title', content: 'The cont
 ## Features
 
 - Declarative and easy TypeScript decorators.
-- Union types (`@XmlProperty({ union: () => [Employee, Manager] }) user: Employee | Manager;`).
-- XML Arrays, including arrays with union types (e.g. `@XmlProperty({ type: () => [Employee, Manager], array: true }) users: (Employee | Manager)[]`).
+- Union types (`@XmlChildElem({ union: () => [Employee, Manager] }) user: Employee | Manager;`).
+- XML Arrays, including arrays with union types (e.g. `@XmlChildElem({ type: () => [Employee, Manager], array: true }) users: (Employee | Manager)[]`).
 - XML Attributes.
 - XML Declarations (`<?xml version="1.0" encoding="UTF-8"?>`).
 - XML Comments
@@ -92,12 +92,71 @@ Huge advantage of this approach is that you can also use `class-validator` and `
 
 The library is still on it's very early stage, but we already use it in production, so don't worry to experiment with it and file an issue or pull request if you want.
 
+## Usage
+
+Lets define our XML schema in the form of classes:
+
+```ts
+@XmlElem({ name: 'article' })
+class Article {
+  @XmlChildElem({ type: () => String })
+  title: string;
+
+  @XmlChildElem({ type: () => String, array: true })
+  authors: string[];
+
+  @XmlChildElem({ type: () => Review, array: true })
+  reviews: Review[];
+
+  @XmlComments()
+  xmlComments: string[];
+
+  constructor(article?: Article) {
+    Object.assign(this, article || {});
+  }
+}
+
+@XmlElem({ name: 'review' })
+class Review {
+  @XmlAttribute({ name: 'language', type: () => String })
+  lang: string;
+
+  @XmlAttribute({ name: 'date', type: () => String })
+  date: string;
+
+  @XmlAttribute({ name: 'author-id', type: () => Number })
+  authorId: number;
+
+  @XmlChardata({ type: () => String })
+  text: string;
+
+  constructor(review?: Review) {
+    Object.assign(this, review || {});
+  }
+}
+```
+
+The above class represents an XML element like this:
+
+```xml
+<article>
+  <title>Article 1</title>
+  <authors>Tom</authors>
+  <authors>Bob</authors>
+  <reviews language="en" date="2020-01-01" author-id="1">contents text</reviews>
+  <reviews language="en" date="2020-01-01" author-id="2">contents text</reviews>
+  <!--some comment-->
+  <!--some other comment-->
+</article>
+```
+
 ## Parsing XML to class
 
 ```typescript
 import {
   XmlElem,
   XmlChildElem,
+  XmlComments,
   classToXml,
   xmlToClass,
 } from './xml-to-class-transformer';
@@ -107,8 +166,8 @@ class Article {
   @XmlChildElem({ type: () => String, name: 'Title' })
   title: string;
 
-  @XmlChildElem({ type: () => String, name: 'Content' })
-  content: string;
+  @XmlComments()
+  comments: string[];
 
   constructor(d?: Article) {
     Object.assign(this, d || {});
