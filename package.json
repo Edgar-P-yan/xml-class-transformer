@@ -29,7 +29,8 @@
     "prepublishOnly": "npm run build && npm run lint && npm run test",
     "build-all-and-test": "npm run doc && npm run lint && npm run test && npm run build",
     "version": "npm run build-all-and-test && git add .",
-    "premajor": "npm version premajor -m \"chore: bump version to %s\"",
+    "major": "npm version major -m \"chore: bump version to %s\"",
+    "premajor": "npm version premajor --preid alpha -m \"chore: bump version to %s\"",
     "prerelease": "npm version prerelease --preid alpha -m \"chore: bump version to %s\"",
     "publish-prerelease": "npm publish --tag=alpha"
   },
