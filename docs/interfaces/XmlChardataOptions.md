@@ -36,4 +36,4 @@ Specify the primitive type for parsing and serializing the chardata.
 
 #### Defined in
 
-[src/types.ts:128](https://github.com/Edgar-P-yan/xml-class-transformer/blob/bd27759/src/types.ts#L128)
+[src/types.ts:128](https://github.com/Edgar-P-yan/xml-class-transformer/blob/feffe5e/src/types.ts#L128)
