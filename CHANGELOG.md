@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.1.0
+
+[Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v2.0.0...v2.1.0)
+
+- fix `exports` in `package.json` to fix usage with `moduleResolution: "bundler"` (fixed thanks to [acrognale](https://github.com/acrognale), [issue #3](https://github.com/Edgar-P-yan/xml-class-transformer/issues/3))
+- development-docs: add info about `npm version-*` scripts in `package.json`
+
 ## v2.0.0
 
 [Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v1.0.3...v2.0.0)
