@@ -82,6 +82,7 @@ might add support for them in the future.
 - [Changelog](#changelog)
 - [Installation from CDN](#installation-from-cdn)
 - [API Documentation](#api-documentation)
+- [Development](#development)
 - [License](#license)
 
 ## Why?
@@ -274,6 +275,15 @@ This module has an UMD bundle available through JSDelivr and Unpkg CDNs.
 ## API Documentation
 
 [Documentation generated from source files by Typedoc](./docs/README.md).
+
+## Development
+
+There are predefined scripts for convenience:
+- `npm version-major` - increments major version by 1, builds the projects, and makes a git commit. So `1.0.0` becomes `2.0.0`;
+
+- `npm version-premajor` - adds 1 to major version, and adds a `-alpha.0` postfix, builds, and makes a git commit. Meant to be used for starting alpha releases for the next coming-up major version. So `1.0.0` becomes `2.0.0-alpha.0`
+
+- `npm version-prerelease` - adds 1 to the `-alpha.0` part (called preid). Meant to be used after `npm version-premajor` for further fixes to the alpha version of the next coming-up major release. So `2.0.0-alpha.0` becomes `2.0.0-alpha.1`
 
 ## License
 

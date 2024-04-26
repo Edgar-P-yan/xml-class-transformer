@@ -20,7 +20,7 @@
           "types": "./types/index.d.ts",
           "default": "./dist/index.cjs"
         },
-       "default": {
+        "default": {
           "types": "./types/index.d.ts",
           "default": "./dist/index.js"
         }
@@ -39,6 +39,7 @@
     "build-all-and-test": "npm run doc && npm run lint && npm run test && npm run build",
     "version": "npm run build-all-and-test && git add .",
     "version-major": "npm version major -m \"chore: bump version to %s\"",
+    "version-minor": "npm version minor -m \"chore: bump version to %s\"",
     "version-premajor": "npm version premajor --preid alpha -m \"chore: bump version to %s\"",
     "version-prerelease": "npm version prerelease --preid alpha -m \"chore: bump version to %s\"",
     "publish-prerelease": "npm publish --tag=alpha"
