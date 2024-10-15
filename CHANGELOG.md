@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.2.0
+
+[Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v2.1.0...v2.2.0)
+
+- fix serialization, so that `&amp;` becomes `&amp;amp;` instead of staying unchanged. To fix this I needed to fork the `xml-js` to `xml-js-v2`, fix it there, and use the fork.
+
 ## v2.1.0
 
 [Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v2.0.0...v2.1.0)

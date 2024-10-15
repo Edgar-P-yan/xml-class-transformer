@@ -20,7 +20,7 @@ If not specified, the property name will be used.
 
 #### Defined in
 
-[src/types.ts:103](https://github.com/Edgar-P-yan/xml-class-transformer/blob/feffe5e/src/types.ts#L103)
+[src/types.ts:103](https://github.com/Edgar-P-yan/xml-class-transformer/blob/f1a1952/src/types.ts#L103)
 
 ___
 
@@ -49,4 +49,4 @@ Specify the primitive type for parsing and serializing the attribute.
 
 #### Defined in
 
-[src/types.ts:114](https://github.com/Edgar-P-yan/xml-class-transformer/blob/feffe5e/src/types.ts#L114)
+[src/types.ts:114](https://github.com/Edgar-P-yan/xml-class-transformer/blob/f1a1952/src/types.ts#L114)

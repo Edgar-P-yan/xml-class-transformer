@@ -1,10 +1,10 @@
 /*!
- * xml-class-transformer v2.1.0
+ * xml-class-transformer v2.2.0
  * (c) Edgar Pogosyan
  * Released under the MIT License.
  */
 
-import xmljs from 'xml-js';
+import xmljs from 'xml-js-v2';
 
 class ClassMetadataRegistry {
     constructor() {

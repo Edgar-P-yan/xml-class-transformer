@@ -80,6 +80,24 @@ class ListVersions {
 }
 
 describe('xml-class-transformer', () => {
+  it('serializes xml &amp; escape sequences', () => {
+    class Tag {
+      @XmlChildElem({ type: () => String })
+      data: string;
+    }
+
+    const xml = classToXml(
+      Object.assign(new Tag(), {
+        data: 'content &amp; content',
+      }),
+    );
+
+    console.log(xml);
+    expect(xml).eq(
+      `<?xml version="1.0" encoding="UTF-8"?><Tag><data>content &amp;amp; content</data></Tag>`,
+    );
+  });
+
   it('serializes ListAllMyBucketsResult', () => {
     const d = new ListAllMyBucketsResult({
       Buckets: new Buckets({

@@ -1,5 +1,5 @@
 /*!
- * xml-class-transformer v2.1.0
+ * xml-class-transformer v2.2.0
  * (c) Edgar Pogosyan
  * Released under the MIT License.
  */
@@ -8,7 +8,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var xmljs = require('xml-js');
+var xmljs = require('xml-js-v2');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 

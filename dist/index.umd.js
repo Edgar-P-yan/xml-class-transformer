@@ -1,12 +1,12 @@
 /*!
- * xml-class-transformer v2.1.0
+ * xml-class-transformer v2.2.0
  * (c) Edgar Pogosyan
  * Released under the MIT License.
  */
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('xml-js')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'xml-js'], factory) :
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('xml-js-v2')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'xml-js-v2'], factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global["xml-class-transformer"] = {}, global.xmljs));
 })(this, (function (exports, xmljs) { 'use strict';
 

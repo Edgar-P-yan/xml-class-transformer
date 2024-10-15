@@ -1,4 +1,4 @@
-import type * as xmljs from 'xml-js';
+import type * as xmljs from 'xml-js-v2';
 
 /**
  * The XML class's constructor should not require any arguments.

@@ -22,7 +22,7 @@ Not compatible with the `attr` and `chardata` options.
 
 #### Defined in
 
-[src/types.ts:85](https://github.com/Edgar-P-yan/xml-class-transformer/blob/feffe5e/src/types.ts#L85)
+[src/types.ts:85](https://github.com/Edgar-P-yan/xml-class-transformer/blob/f1a1952/src/types.ts#L85)
 
 ___
 
@@ -39,7 +39,7 @@ Not compatible with the `union` option, because union typed elements name is gat
 
 #### Defined in
 
-[src/types.ts:95](https://github.com/Edgar-P-yan/xml-class-transformer/blob/feffe5e/src/types.ts#L95)
+[src/types.ts:95](https://github.com/Edgar-P-yan/xml-class-transformer/blob/f1a1952/src/types.ts#L95)
 
 ___
 
@@ -68,7 +68,7 @@ Not compatible with the `union` option.
 
 #### Defined in
 
-[src/types.ts:64](https://github.com/Edgar-P-yan/xml-class-transformer/blob/feffe5e/src/types.ts#L64)
+[src/types.ts:64](https://github.com/Edgar-P-yan/xml-class-transformer/blob/f1a1952/src/types.ts#L64)
 
 ___
 
@@ -101,4 +101,4 @@ Primitive types are not supported in unions.
 
 #### Defined in
 
-[src/types.ts:79](https://github.com/Edgar-P-yan/xml-class-transformer/blob/feffe5e/src/types.ts#L79)
+[src/types.ts:79](https://github.com/Edgar-P-yan/xml-class-transformer/blob/f1a1952/src/types.ts#L79)

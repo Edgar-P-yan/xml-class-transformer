@@ -1,4 +1,4 @@
-import xmljs from 'xml-js';
+import xmljs from 'xml-js-v2';
 import { registry } from './class-metadata-registry';
 import { ClassToXmlOptions, XmlType } from './types';
 import { errUnknownClass, isPrimitiveType } from './common';
