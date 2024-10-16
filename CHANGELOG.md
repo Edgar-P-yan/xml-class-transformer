@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.3.0
+
+[Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v2.2.0...v2.3.0)
+
+- update `xml-js-v2` to `v2.2.1` that has the option `avoidDoubleSanitization` and uses latest `sax` version.
+
 ## v2.2.0
 
 [Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v2.1.0...v2.2.0)

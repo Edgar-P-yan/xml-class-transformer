@@ -16,6 +16,7 @@
 - [attributeValueFn](ClassToXmlOptions.md#attributevaluefn)
 - [attributesFn](ClassToXmlOptions.md#attributesfn)
 - [attributesKey](ClassToXmlOptions.md#attributeskey)
+- [avoidDoubleSanitization](ClassToXmlOptions.md#avoiddoublesanitization)
 - [cdataFn](ClassToXmlOptions.md#cdatafn)
 - [cdataKey](ClassToXmlOptions.md#cdatakey)
 - [commentFn](ClassToXmlOptions.md#commentfn)
@@ -80,7 +81,7 @@ xmljs.Options.JS2XML.attributeNameFn
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:110
+node_modules/xml-js-v2/types/index.d.ts:119
 
 ___
 
@@ -111,7 +112,7 @@ xmljs.Options.JS2XML.attributeValueFn
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:116
+node_modules/xml-js-v2/types/index.d.ts:125
 
 ___
 
@@ -141,7 +142,7 @@ xmljs.Options.JS2XML.attributesFn
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:122
+node_modules/xml-js-v2/types/index.d.ts:131
 
 ___
 
@@ -155,7 +156,30 @@ xmljs.Options.JS2XML.attributesKey
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:139
+node_modules/xml-js-v2/types/index.d.ts:148
+
+___
+
+### avoidDoubleSanitization
+
+• `Optional` **avoidDoubleSanitization**: `boolean`
+
+If set to true, it will not sanitize already escaped characters.
+
+If this is not set or set to `false`, then a string like `&amp; &` will be converted to `&amp;amp; &amp;`.
+If this is set to `true`, then `&amp; &` will be converted to `&amp; &amp;`.
+
+**`Default`**
+
+false
+
+#### Inherited from
+
+xmljs.Options.JS2XML.avoidDoubleSanitization
+
+#### Defined in
+
+node_modules/xml-js-v2/types/index.d.ts:101
 
 ___
 
@@ -185,7 +209,7 @@ xmljs.Options.JS2XML.cdataFn
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:100
+node_modules/xml-js-v2/types/index.d.ts:109
 
 ___
 
@@ -199,7 +223,7 @@ xmljs.Options.JS2XML.cdataKey
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:141
+node_modules/xml-js-v2/types/index.d.ts:150
 
 ___
 
@@ -229,7 +253,7 @@ xmljs.Options.JS2XML.commentFn
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:101
+node_modules/xml-js-v2/types/index.d.ts:110
 
 ___
 
@@ -243,7 +267,7 @@ xmljs.Options.JS2XML.commentKey
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:143
+node_modules/xml-js-v2/types/index.d.ts:152
 
 ___
 
@@ -273,7 +297,7 @@ true
 
 #### Defined in
 
-[src/types.ts:136](https://github.com/Edgar-P-yan/xml-class-transformer/blob/f1a1952/src/types.ts#L136)
+[src/types.ts:136](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/types.ts#L136)
 
 ___
 
@@ -287,7 +311,7 @@ xmljs.Options.JS2XML.declarationKey
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:137
+node_modules/xml-js-v2/types/index.d.ts:146
 
 ___
 
@@ -317,7 +341,7 @@ xmljs.Options.JS2XML.doctypeFn
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:93
+node_modules/xml-js-v2/types/index.d.ts:102
 
 ___
 
@@ -331,7 +355,7 @@ xmljs.Options.JS2XML.doctypeKey
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:142
+node_modules/xml-js-v2/types/index.d.ts:151
 
 ___
 
@@ -361,7 +385,7 @@ xmljs.Options.JS2XML.elementNameFn
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:109
+node_modules/xml-js-v2/types/index.d.ts:118
 
 ___
 
@@ -375,7 +399,7 @@ xmljs.Options.JS2XML.elementsKey
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:147
+node_modules/xml-js-v2/types/index.d.ts:156
 
 ___
 
@@ -418,7 +442,7 @@ xmljs.Options.JS2XML.fullTagEmptyElementFn
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:123
+node_modules/xml-js-v2/types/index.d.ts:132
 
 ___
 
@@ -432,7 +456,7 @@ xmljs.Options.JS2XML.ignoreAttributes
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:129
+node_modules/xml-js-v2/types/index.d.ts:138
 
 ___
 
@@ -446,7 +470,7 @@ xmljs.Options.JS2XML.ignoreCdata
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:131
+node_modules/xml-js-v2/types/index.d.ts:140
 
 ___
 
@@ -460,7 +484,7 @@ xmljs.Options.JS2XML.ignoreComment
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:130
+node_modules/xml-js-v2/types/index.d.ts:139
 
 ___
 
@@ -474,7 +498,7 @@ xmljs.Options.JS2XML.ignoreDeclaration
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:127
+node_modules/xml-js-v2/types/index.d.ts:136
 
 ___
 
@@ -488,7 +512,7 @@ xmljs.Options.JS2XML.ignoreDoctype
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:132
+node_modules/xml-js-v2/types/index.d.ts:141
 
 ___
 
@@ -502,7 +526,7 @@ xmljs.Options.JS2XML.ignoreInstruction
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:128
+node_modules/xml-js-v2/types/index.d.ts:137
 
 ___
 
@@ -516,7 +540,7 @@ xmljs.Options.JS2XML.ignoreText
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:133
+node_modules/xml-js-v2/types/index.d.ts:142
 
 ___
 
@@ -603,7 +627,7 @@ xmljs.Options.JS2XML.instructionFn
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:94
+node_modules/xml-js-v2/types/index.d.ts:103
 
 ___
 
@@ -617,7 +641,7 @@ xmljs.Options.JS2XML.instructionKey
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:138
+node_modules/xml-js-v2/types/index.d.ts:147
 
 ___
 
@@ -648,7 +672,7 @@ xmljs.Options.JS2XML.instructionNameFn
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:103
+node_modules/xml-js-v2/types/index.d.ts:112
 
 ___
 
@@ -662,7 +686,7 @@ xmljs.Options.JS2XML.nameKey
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:146
+node_modules/xml-js-v2/types/index.d.ts:155
 
 ___
 
@@ -690,7 +714,7 @@ xmljs.Options.JS2XML.parentKey
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:144
+node_modules/xml-js-v2/types/index.d.ts:153
 
 ___
 
@@ -734,7 +758,7 @@ xmljs.Options.JS2XML.textFn
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:102
+node_modules/xml-js-v2/types/index.d.ts:111
 
 ___
 
@@ -748,7 +772,7 @@ xmljs.Options.JS2XML.textKey
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:140
+node_modules/xml-js-v2/types/index.d.ts:149
 
 ___
 
@@ -762,4 +786,4 @@ xmljs.Options.JS2XML.typeKey
 
 #### Defined in
 
-node_modules/xml-js-v2/types/index.d.ts:145
+node_modules/xml-js-v2/types/index.d.ts:154
