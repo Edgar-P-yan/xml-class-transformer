@@ -6,31 +6,160 @@
 
 import xmljs from 'xml-js-v2';
 
+class DefaultNumberMarshaller {
+    marshal(value) {
+        if (value === undefined) {
+            return undefined;
+        }
+        return value === null ? '' : `${value}`;
+    }
+    unmarshal(chardata) {
+        if (chardata === undefined) {
+            return undefined;
+        }
+        const castToStr = `${chardata}`;
+        // parse empty strings to nulls when the specified type is Number
+        // because there is no convenient way to represent an empty string as a number,
+        // there is an idea to convert them to 0, but it's an implicit and non obvious behaviour.
+        // Maybe a better idea would be to convert them to NaN just as parseFloat does.
+        return castToStr === ''
+            ? null
+            : castToStr
+                ? parseFloat(castToStr)
+                : undefined;
+    }
+}
+class DefaultBigIntMarshaller {
+    marshal(value) {
+        if (value === undefined) {
+            return undefined;
+        }
+        return value === null ? '' : `${value}`;
+    }
+    unmarshal(chardata) {
+        if (chardata === undefined) {
+            return undefined;
+        }
+        const castToStr = `${chardata}`;
+        // parse empty strings to nulls when the specified type is BigInt
+        // because there is no convenient way to represent an empty string as a number,
+        // there is an idea to convert them to 0, but it's an implicit and non obvious behaviour.
+        // Maybe a better idea would be to convert them to NaN just as parseFloat does.
+        return castToStr === '' ? null : castToStr ? BigInt(castToStr) : undefined;
+    }
+}
+class DefaultStringMarshaller {
+    marshal(value) {
+        if (value === undefined) {
+            return undefined;
+        }
+        return value === null ? '' : `${value}`;
+    }
+    unmarshal(chardata) {
+        if (chardata === undefined) {
+            return undefined;
+        }
+        return `${chardata}`;
+    }
+}
+class DefaultBooleanMarshaller {
+    marshal(value) {
+        if (value === undefined) {
+            return undefined;
+        }
+        return value === null ? '' : `${value}`;
+    }
+    unmarshal(chardata) {
+        if (chardata === undefined) {
+            return undefined;
+        }
+        const castToStr = `${chardata}`;
+        return castToStr === ''
+            ? null
+            : castToStr
+                ? castToStr === 'true'
+                : undefined;
+    }
+}
+class DefaultDateMarshaller {
+    marshal(value) {
+        if (value === undefined) {
+            return undefined;
+        }
+        return value === null ? '' : value.toISOString();
+    }
+    unmarshal(chardata) {
+        if (chardata === undefined) {
+            return undefined;
+        }
+        return chardata === '' ? null : new Date(chardata);
+    }
+}
+const defaultNumberMarshaller = new DefaultNumberMarshaller();
+const defaultBigIntMarshaller = new DefaultBigIntMarshaller();
+const defaultStringMarshaller = new DefaultStringMarshaller();
+const defaultBooleanMarshaller = new DefaultBooleanMarshaller();
+const defaultDateMarshaller = new DefaultDateMarshaller();
+
+function errUnknownClass(classConstructor) {
+    return new Error(`xml-class-transformer: class "${classConstructor}" not found. Make sure there is a @XmlElem({...}) ` +
+        `decorator on it, or XmlChildElem, XmlAttribute, XmlChardata or XmlComments decorator on its properties.`);
+}
+function errNoXmlNameForClass(xmlClass) {
+    return new Error(`xml-class-transformer: no XML name is specified for ${xmlClass === null || xmlClass === void 0 ? void 0 : xmlClass.name}. ` +
+        `Specify it with the @XmlElem({ name: '...' }) decorator.`);
+}
+function serializeUnionForLog(union) {
+    return '[' + union.map((t) => { var _a; return (_a = t === null || t === void 0 ? void 0 : t.name) !== null && _a !== void 0 ? _a : `${union}`; }).join(', ') + ']';
+}
+function isPrimitiveType(type) {
+    return (type === String ||
+        type === Number ||
+        type === BigInt ||
+        type === Boolean ||
+        type === Date);
+}
+function getDefaultMarshaller(type) {
+    switch (type) {
+        case String:
+            return defaultStringMarshaller;
+        case Number:
+            return defaultNumberMarshaller;
+        case BigInt:
+            return defaultBigIntMarshaller;
+        case Boolean:
+            return defaultBooleanMarshaller;
+        case Date:
+            return defaultDateMarshaller;
+    }
+    throw new Error('unknown primitive type ' + type);
+}
+
 class ClassMetadataRegistry {
     constructor() {
         this.registry = new Map();
     }
-    setEntityOptions(xClass, opts) {
-        const metadata = this.registry.get(xClass);
+    setEntityOptions(classConstructor, opts) {
+        const metadata = this.registry.get(classConstructor);
         if (metadata) {
             metadata.entity = opts;
         }
         else {
-            this.registry.set(xClass, {
+            this.registry.set(classConstructor, {
                 entity: opts,
                 properties: new Map(),
             });
         }
     }
-    setPropertyOptions(xClass, propertyKey, opts) {
-        const metadata = this.getOrCreate(xClass);
+    setPropertyOptions(classConstr, propertyKey, opts) {
+        const metadata = this.getOrCreate(classConstr);
         if (opts.comments) {
             for (const [searchingPropKey, searchingOpts] of metadata.properties) {
                 if (searchingOpts.comments) {
                     throw new Error(`xml-class-transformer: only one @XmlComment() decorator is allowed per class. ` +
                         `Can not define @XmlComment() decorator for  ` +
-                        `${xClass.name}#${propertyKey} since it's already used for ` +
-                        `${xClass.name}#${searchingPropKey}.`);
+                        `${classConstr.name}#${propertyKey} since it's already used for ` +
+                        `${classConstr.name}#${searchingPropKey}.`);
                 }
             }
         }
@@ -39,53 +168,58 @@ class ClassMetadataRegistry {
                 if (searchingOpts.name === opts.name) {
                     throw new Error(`xml-class-transformer: can't use XML element name defined in ` +
                         `{ name: ${JSON.stringify(opts.name)} } for ` +
-                        `${xClass.name}#${propertyKey} since it's already used for ` +
-                        `${xClass.name}#${searchingPropKey}. Change it to something else.`);
+                        `${classConstr.name}#${propertyKey} since it's already used for ` +
+                        `${classConstr.name}#${searchingPropKey}. Change it to something else.`);
                 }
                 // TODO: maybe support multiple chardata for multiple child text nodes inside an xml element.
                 // each of those chardata properties whould match the text node at the same position as the property itself.
                 // The same goes for not yet implemented comments and cdata.
                 if (opts.chardata && searchingOpts.chardata) {
                     throw new Error(`xml-class-transformer: an XML element can have only one chardata property. ` +
-                        `Both ${xClass.name}#${propertyKey} and ${xClass.name}#${searchingOpts.name} ` +
+                        `Both ${classConstr.name}#${propertyKey} and ${classConstr.name}#${searchingOpts.name} ` +
                         `are defined as chardata, which is not valid.`);
                 }
             }
         }
         metadata.properties.set(propertyKey, opts);
     }
-    getOrCreate(xClass) {
-        const existing = this.registry.get(xClass);
+    getOrCreate(classConstr) {
+        const existing = this.registry.get(classConstr);
         if (existing) {
             return existing;
         }
         else {
             const newMetadatas = {
                 entity: {
-                    name: xClass === null || xClass === void 0 ? void 0 : xClass.name,
+                    name: classConstr === null || classConstr === void 0 ? void 0 : classConstr.name,
                 },
                 properties: new Map(),
             };
-            this.registry.set(xClass, newMetadatas);
+            this.registry.set(classConstr, newMetadatas);
             return newMetadatas;
         }
     }
-    get(xClass) {
-        return this.registry.get(xClass);
+    get(classConstr) {
+        return this.registry.get(classConstr);
+    }
+    resolveUnionComponents(union) {
+        // TODO: optimize and cache this map:
+        const tagNameToClassType = new Map();
+        for (const classType of union) {
+            const classTypeMetadata = registry.get(classType);
+            if (!classTypeMetadata) {
+                throw errUnknownClass(classType);
+            }
+            const tagName = classTypeMetadata.entity.name;
+            if (!tagName) {
+                throw errNoXmlNameForClass(classType);
+            }
+            tagNameToClassType.set(tagName, classType);
+        }
+        return tagNameToClassType;
     }
 }
 const registry = new ClassMetadataRegistry();
-
-function errUnknownClass(classConstructor) {
-    return new Error(`xml-class-transformer: class "${classConstructor}" not found. Make sure there is a @XmlElem({...}) ` +
-        `decorator on it, or XmlChildElem, XmlAttribute, XmlChardata or XmlComments decorator on its properties.`);
-}
-function serializeUnionForLog(union) {
-    return '[' + union.map((t) => { var _a; return (_a = t === null || t === void 0 ? void 0 : t.name) !== null && _a !== void 0 ? _a : `${union}`; }).join(', ') + ']';
-}
-function isPrimitiveType(type) {
-    return (type === String || type === Number || type === BigInt || type === Boolean);
-}
 
 function classToXml(entity, options) {
     const tree = classToXmlInternal(entity, '', entity.constructor);
@@ -105,224 +239,289 @@ function classToXml(entity, options) {
 }
 function classToXmlInternal(entity, name, entityConstructor) {
     if (isPrimitiveType(entityConstructor)) {
-        const text = entity === null ? '' : `${entity}`;
-        return {
-            type: 'element',
-            name: name,
-            elements: [
-                {
-                    type: 'text',
-                    text,
-                },
-            ],
-        };
+        return primitiveTypeToXml(entity, name, entityConstructor);
     }
-    const meta = registry.get(entityConstructor);
-    if (!meta) {
+    const metadatas = registry.get(entityConstructor);
+    if (!metadatas) {
         throw errUnknownClass(entityConstructor);
     }
-    const elemName = name || meta.entity.name;
+    const elemName = name || metadatas.entity.name;
     if (!elemName) {
-        throw new Error(`xml-class-transformer: no XML name is specified for the class "${entityConstructor === null || entityConstructor === void 0 ? void 0 : entityConstructor.name}". Specify it with the @XmlElem({ name: '...' }) decorator.`);
+        throw errNoXmlNameForClass(entityConstructor);
     }
-    const children = [];
-    const attributes = {};
-    meta.properties.forEach((opts, classKey) => {
-        var _a;
-        // Do not emit attribute if value is undefined,
-        if (entity[classKey] === undefined) {
-            return;
-        }
-        if (opts.comments) {
-            if (Array.isArray(entity[classKey])) {
-                for (const comment of entity[classKey]) {
-                    children.push({
-                        type: 'comment',
-                        comment: comment === null || comment === undefined ? '' : `${comment}`,
-                    });
-                }
-            }
-        }
-        else if (opts.attr) {
-            if (!opts.name) {
-                throw new Error(`xml-class-transformer: no name is specified for the property ${entityConstructor === null || entityConstructor === void 0 ? void 0 : entityConstructor.name}#${classKey}. Specify it with the @XmlAttribute({ name: '...' }) decorator.`);
-            }
-            attributes[opts.name] =
-                entity[classKey] === null ? '' : `${entity[classKey]}`;
-        }
-        else if (opts.chardata) {
-            children.push({
-                type: 'text',
-                text: entity[classKey] === null ? '' : `${entity[classKey]}`,
-            });
-        }
-        else if (opts.array) {
-            if (entity[classKey] === null) {
-                return;
-            }
-            (_a = entity[classKey]) === null || _a === void 0 ? void 0 : _a.forEach((e) => {
-                // Do not process null and undefined values in the array.
-                // When we impl support for primitive unions maybe this should change
-                if (!e) {
-                    return;
-                }
-                // If it is a union then we can't guess required class out of it.
-                // In those cases users should give to the library actual class instances (aka new MyEntity({...}))
-                // so the library can guess the class type just by looking at the myEntity.constructor
-                const classConstructor = opts.union ? e.constructor : opts.type();
-                // The opts.name will be undefined if !!opts.union, but thats ok.
-                children.push(classToXmlInternal(e, opts.name, classConstructor));
-            });
-        }
-        else if (opts.type && isPrimitiveType(opts.type())) {
-            if (!opts.name) {
-                throw new Error(`xml-class-transformer: no name is specified for property ${entityConstructor === null || entityConstructor === void 0 ? void 0 : entityConstructor.name}#${classKey}. Specify it with @XmlChildElem({ name: '...' }) decorator.`);
-            }
-            children.push(classToXmlInternal(entity[classKey], opts.name, opts.type()));
-        }
-        else if (opts.union) {
-            // should work with primitive types also
-            const classConstructor = entity[classKey].constructor;
-            children.push(classToXmlInternal(entity[classKey], undefined, classConstructor));
-        }
-        else {
-            // If null then just skip this embedded element for the current impl
-            // TODO: maybe non array unions are borken
-            if (entity[classKey] !== null) {
-                children.push(classToXmlInternal(entity[classKey], opts.name, opts.union ? entity[classKey].constructor : opts.type()));
-            }
-        }
-    });
-    if (meta.entity.xmlns) {
-        attributes['xmlns'] = meta.entity.xmlns;
+    const mutChildren = [];
+    const mutAttributes = {};
+    for (const [classKey, opts] of metadatas.properties) {
+        marshalProperty(entityConstructor, entity, opts, classKey, mutChildren, mutAttributes);
+    }
+    if (metadatas.entity.xmlns) {
+        mutAttributes['xmlns'] = metadatas.entity.xmlns;
     }
     return {
         type: 'element',
         name: elemName,
-        attributes,
-        elements: children,
+        attributes: mutAttributes,
+        elements: mutChildren,
     };
 }
-
-function xmlToClass(xml, _class) {
-    var _a;
-    const parsed = xmljs.xml2js(xml, {
-        compact: false,
-        alwaysArray: true,
+function primitiveTypeToXml(value, name, entityConstructor) {
+    const defaultMarshaller = getDefaultMarshaller(entityConstructor);
+    const text = defaultMarshaller.marshal(value);
+    if (text === undefined) {
+        // should never happen, but just in case
+        return {};
+    }
+    return {
+        type: 'element',
+        name: name,
+        elements: [
+            {
+                type: 'text',
+                text,
+            },
+        ],
+    };
+}
+function marshalProperty(containerEntityConstructor, entity, opts, classKey, mutChildren, mutAttributes) {
+    if (opts.comments) {
+        marshalCommentsProperty(entity, classKey, mutChildren);
+    }
+    else if (opts.attr) {
+        marshalAttributeProperty(containerEntityConstructor, entity, opts, classKey, mutAttributes);
+    }
+    else if (opts.chardata) {
+        marshalChardataProperty(entity, opts, classKey, mutChildren);
+    }
+    else if (opts.array) {
+        marshalArrayProperty(entity, opts, classKey, mutChildren);
+    }
+    else if (opts.marshaller || opts.isPrimitiveType()) {
+        marshalPrimitiveTypeProperty(containerEntityConstructor, entity, opts, classKey, mutChildren);
+    }
+    else if (opts.union) {
+        marshalUnionProperty(entity, classKey, mutChildren);
+    }
+    else {
+        marshalChildClassElemProperty(entity, opts, classKey, mutChildren);
+    }
+}
+function marshalCommentsProperty(entity, classKey, mutChildren) {
+    if (Array.isArray(entity[classKey])) {
+        for (const comment of entity[classKey]) {
+            mutChildren.push({
+                type: 'comment',
+                comment: comment === null || comment === undefined ? '' : `${comment}`,
+            });
+        }
+    }
+}
+function marshalAttributeProperty(containerEntityConstructor, entity, opts, classKey, mutAttributes) {
+    if (!opts.name) {
+        throw new Error(`xml-class-transformer: no name is specified for the property ${containerEntityConstructor === null || containerEntityConstructor === void 0 ? void 0 : containerEntityConstructor.name}#${classKey}. ` +
+            `Specify it with the @XmlAttribute({ name: '...' }) decorator.`);
+    }
+    const value = marshal(entity[classKey], opts);
+    if (value === undefined) {
+        return;
+    }
+    mutAttributes[opts.name] = `${value}`;
+}
+function marshalChardataProperty(entity, opts, classKey, mutChildren) {
+    const value = marshal(entity[classKey], opts);
+    if (value === undefined) {
+        return;
+    }
+    mutChildren.push({
+        type: 'text',
+        text: value,
     });
+}
+function marshalArrayProperty(entity, opts, classKey, mutChildren) {
+    if (entity[classKey] === null || entity[classKey] === undefined) {
+        return;
+    }
+    for (const entityFromArray of entity[classKey]) {
+        if (opts.marshaller || opts.isPrimitiveType()) {
+            const marshalledValue = marshal(entityFromArray, opts);
+            if (marshalledValue === undefined) {
+                continue;
+            }
+            mutChildren.push(primitiveTypeToXml(entityFromArray, opts.name, String));
+        }
+        else {
+            // Do not process null and undefined values in the array.
+            // When we impl support for primitive unions maybe this should change
+            if (entityFromArray === null || entityFromArray === undefined) {
+                continue;
+            }
+            // If it is a union then we can't guess required class out of it.
+            // In those cases users should give to the library actual class instances (aka new MyEntity({...}))
+            // so the library can guess the class type just by looking at the myEntity.constructor
+            const classConstructor = opts.union
+                ? entityFromArray.constructor
+                : opts.type();
+            // The opts.name will be undefined if !!opts.union, but thats ok.
+            mutChildren.push(classToXmlInternal(entityFromArray, opts.name, classConstructor));
+        }
+    }
+}
+function marshalPrimitiveTypeProperty(containerEntityConstructor, entity, opts, classKey, mutChildren) {
+    if (!opts.name) {
+        throw new Error(`xml-class-transformer: no name is specified for property ${containerEntityConstructor === null || containerEntityConstructor === void 0 ? void 0 : containerEntityConstructor.name}#${classKey}. ` +
+            `Specify it with @XmlChildElem({ name: '...' }) decorator.`);
+    }
+    const value = marshal(entity[classKey], opts);
+    if (value === undefined) {
+        return;
+    }
+    mutChildren.push(primitiveTypeToXml(value, opts.name, String));
+}
+function marshalUnionProperty(entity, classKey, mutChildren) {
+    // should work with primitive types also
+    const classConstructor = entity[classKey].constructor;
+    mutChildren.push(classToXmlInternal(entity[classKey], undefined, classConstructor));
+}
+function marshalChildClassElemProperty(entity, opts, classKey, mutChildren) {
+    // If null then just skip this embedded element for the current impl
+    // TODO: maybe non array unions are broken
+    if (entity[classKey] !== undefined && entity[classKey] !== null) {
+        mutChildren.push(classToXmlInternal(entity[classKey], opts.name, opts.type()));
+    }
+}
+function marshal(value, opts) {
+    let marshalled = value;
+    if (opts.marshaller) {
+        marshalled = opts.marshaller.marshal(value);
+    }
+    else if (opts.type) {
+        const type = opts.type();
+        if (isPrimitiveType(type)) {
+            marshalled = getDefaultMarshaller(type).marshal(value);
+        }
+    }
+    return marshalled;
+}
+
+function xmlToClass(xml, classConstructor, options) {
+    var _a;
+    const parsed = xmljs.xml2js(xml, Object.assign(Object.assign({}, options), { compact: false, alwaysArray: true }));
     const firstElement = (_a = parsed.elements) === null || _a === void 0 ? void 0 : _a[0];
     if (!firstElement) {
         throw new Error('No elements found in xml.');
     }
-    return xmlToClassInternal(firstElement, _class);
+    return xmlToClassInternal(firstElement, classConstructor);
 }
-function xmlToClassInternal(element, _class) {
-    if (isPrimitiveType(_class)) {
-        const text = getChardataFromElem(element);
-        return parsePrimitive(text, _class);
+function xmlToClassInternal(xmlElement, classConstructor) {
+    if (isPrimitiveType(classConstructor)) {
+        const text = getChardataFromElem(xmlElement);
+        return unmarshalPrimitiveType(text, classConstructor);
     }
-    const metadatas = registry.get(_class);
+    const metadatas = registry.get(classConstructor);
     if (!metadatas) {
-        throw new Error('Unknown class ' + _class);
+        throw new Error('Unknown class ' + classConstructor);
     }
-    const inst = new _class();
-    metadatas.properties.forEach((metadata, key) => {
-        var _a, _b, _c, _d, _e;
-        if (metadata.comments) {
-            const commentsAccumulated = [];
-            for (const childElem of element.elements || []) {
-                if (childElem.type === 'comment') {
-                    commentsAccumulated.push(childElem.comment || '');
-                }
-            }
-            inst[key] = commentsAccumulated;
+    const classInstance = new classConstructor();
+    for (const [classKey, opts] of metadatas.properties) {
+        unmarshalProperty(xmlElement, opts, classKey, classInstance);
+    }
+    return classInstance;
+}
+function unmarshalProperty(xmlElement, opts, classKey, mutClassInstance) {
+    if (opts.comments) {
+        unmarshalCommentsProperty(xmlElement, classKey, mutClassInstance);
+    }
+    else if (opts.attr) {
+        unmarshalAttributeProperty(xmlElement, classKey, opts, mutClassInstance);
+    }
+    else if (opts.chardata) {
+        unmarshalChardataProperty(xmlElement, classKey, opts, mutClassInstance);
+    }
+    else if (opts.array) {
+        unmarshalArrayProperty(xmlElement, classKey, opts, mutClassInstance);
+    }
+    else if (opts.union) {
+        unmarshalUnionProperty(xmlElement, classKey, opts, mutClassInstance);
+    }
+    else {
+        unmarshalPrimitiveOrChildClassElemProperty(xmlElement, classKey, opts, mutClassInstance);
+    }
+}
+function unmarshalCommentsProperty(xmlElement, classKey, mutClassInstance) {
+    const commentsAccumulated = [];
+    for (const childElem of xmlElement.elements || []) {
+        if (childElem.type === 'comment') {
+            commentsAccumulated.push(childElem.comment || '');
         }
-        else if (metadata.attr) {
-            if (!metadata.name) {
-                throw new Error(`xml-class-transformer: no name is specified for attribute ${key}. Specify it with @XmlAttribute({ name: '...' }) decorator.`);
-            }
-            const attr = (_a = element.attributes) === null || _a === void 0 ? void 0 : _a[metadata.name];
-            if (attr !== undefined && attr !== null) {
-                inst[key] = parsePrimitive(attr, metadata.type());
-            }
-            else {
-                // If the attribute property is undefined - it means
-                // that the attribute was not present in the xml.
-                inst[key] = undefined;
-            }
-        }
-        else if (metadata.chardata) {
-            inst[key] = xmlToClassInternal(element, metadata.type());
-        }
-        else if (metadata.array) {
-            if (metadata.union) {
-                // TODO: optimize and cache this map:
-                const tagNameToClassType = new Map();
-                metadata.union().forEach((classType) => {
-                    const classTypeMetadata = registry.get(classType);
-                    if (!classTypeMetadata) {
-                        throw errUnknownClass(classType);
-                    }
-                    const tagName = classTypeMetadata.entity.name;
-                    if (!tagName) {
-                        throw new Error(`xml-class-transformer: no name is specified for ${classType}. Specify it with the @XmlElem({ name: '...' }) decorator.`);
-                    }
-                    tagNameToClassType.set(tagName, classType);
-                });
-                const possibleTagNames = [...tagNameToClassType.keys()];
-                const resolvedValues = [];
-                (_b = element.elements) === null || _b === void 0 ? void 0 : _b.forEach((el) => {
-                    if (el.name && possibleTagNames.includes(el.name)) {
-                        const classType = tagNameToClassType.get(el.name);
-                        const entity = xmlToClassInternal(el, classType);
-                        resolvedValues.push(entity);
-                    }
-                });
-                inst[key] = resolvedValues;
-            }
-            else {
-                const elems = ((_c = element.elements) === null || _c === void 0 ? void 0 : _c.filter((e) => e.name === metadata.name)) || [];
-                const resolvedValues = [];
-                elems.forEach((el) => {
-                    const entity = xmlToClassInternal(el, metadata.type());
-                    resolvedValues.push(entity);
-                });
-                inst[key] = resolvedValues;
-            }
-        }
-        else if (metadata.union) {
-            // TODO: optimize and cache this map:
-            const tagNameToClassType = new Map();
-            metadata.union().forEach((classType) => {
-                const classTypeMetadata = registry.get(classType);
-                if (!classTypeMetadata) {
-                    throw errUnknownClass(classType);
-                }
-                const tagName = classTypeMetadata.entity.name;
-                if (!tagName) {
-                    throw new Error(`xml-class-transformer: no name is specified for ${classType}. Specify it with the @XmlElem({ name: '...' }) decorator.`);
-                }
-                tagNameToClassType.set(tagName, classType);
-            });
-            const matchingXmlElement = (_d = element.elements) === null || _d === void 0 ? void 0 : _d.find((el) => {
-                return el.name && tagNameToClassType.has(el.name);
-            });
-            inst[key] = matchingXmlElement
-                ? xmlToClassInternal(matchingXmlElement, tagNameToClassType.get(matchingXmlElement.name))
-                : undefined;
-        }
-        else {
-            const el = (_e = element.elements) === null || _e === void 0 ? void 0 : _e.find((el) => el.name === metadata.name);
-            if (el) {
-                const value = xmlToClassInternal(el, metadata.type());
-                inst[key] = value;
-            }
-            else {
-                inst[key] = undefined;
+    }
+    mutClassInstance[classKey] = commentsAccumulated;
+}
+function unmarshalAttributeProperty(xmlElement, classKey, opts, mutClassInstance) {
+    var _a;
+    if (!opts.name) {
+        throw new Error(`xml-class-transformer: no name is specified for attribute ${classKey}. ` +
+            `Specify it with @XmlAttribute({ name: '...' }) decorator.`);
+    }
+    let attrValue = (_a = xmlElement.attributes) === null || _a === void 0 ? void 0 : _a[opts.name];
+    if (typeof attrValue === 'number') {
+        attrValue = `${attrValue}`;
+    }
+    const unmarshalled = unmarshal(attrValue, opts);
+    mutClassInstance[classKey] = unmarshalled;
+}
+function unmarshalChardataProperty(xmlElement, classKey, opts, mutClassInstance) {
+    const chardata = getChardataFromElem(xmlElement);
+    const unmarshalled = unmarshal(chardata, opts);
+    mutClassInstance[classKey] = unmarshalled;
+}
+function unmarshalArrayProperty(xmlElement, classKey, opts, mutClassInstance) {
+    var _a;
+    if (opts.union) {
+        const mapTagToClassConstr = registry.resolveUnionComponents(opts.union());
+        const unmarshalledValues = [];
+        for (const el of xmlElement.elements || []) {
+            if (el.name && mapTagToClassConstr.has(el.name)) {
+                const classConstr = mapTagToClassConstr.get(el.name);
+                const entity = xmlToClassInternal(el, classConstr);
+                unmarshalledValues.push(entity);
             }
         }
+        mutClassInstance[classKey] = unmarshalledValues;
+    }
+    else {
+        const elems = ((_a = xmlElement.elements) === null || _a === void 0 ? void 0 : _a.filter((e) => e.name === opts.name)) || [];
+        const unmarshalledValues = [];
+        for (const el of elems) {
+            const entity = xmlToClassInternal(el, opts.type());
+            unmarshalledValues.push(entity);
+        }
+        mutClassInstance[classKey] = unmarshalledValues;
+    }
+}
+function unmarshalUnionProperty(xmlElement, classKey, opts, mutClassInstance) {
+    var _a;
+    const mapTagToClassConstr = registry.resolveUnionComponents(opts.union());
+    const matchingXmlElement = (_a = xmlElement.elements) === null || _a === void 0 ? void 0 : _a.find((el) => {
+        return el.name ? mapTagToClassConstr.has(el.name) : false;
     });
-    return inst;
+    mutClassInstance[classKey] = matchingXmlElement
+        ? xmlToClassInternal(matchingXmlElement, mapTagToClassConstr.get(matchingXmlElement.name))
+        : undefined;
+}
+function unmarshalPrimitiveOrChildClassElemProperty(xmlElement, classKey, opts, mutClassInstance) {
+    var _a;
+    // is primitive type, marshaller or child class elem
+    const el = (_a = xmlElement.elements) === null || _a === void 0 ? void 0 : _a.find((el) => el.name === opts.name);
+    if (opts.marshaller || opts.isPrimitiveType()) {
+        const chardata = el ? getChardataFromElem(el) : undefined;
+        const unmarshalled = unmarshal(chardata, opts);
+        mutClassInstance[classKey] = unmarshalled;
+    }
+    else if (el) {
+        mutClassInstance[classKey] = xmlToClassInternal(el, opts.type());
+    }
+    else {
+        mutClassInstance[classKey] = undefined;
+    }
 }
 function getChardataFromElem(el) {
     let chardata = '';
@@ -333,36 +532,46 @@ function getChardataFromElem(el) {
     }
     return chardata;
 }
-function parsePrimitive(
+function unmarshal(
+// Support numbers also
+value, opts) {
+    let unmarshalled = value;
+    if (opts.marshaller) {
+        unmarshalled = opts.marshaller.unmarshal(value);
+    }
+    else if (opts.type) {
+        const type = opts.type();
+        if (isPrimitiveType(type)) {
+            unmarshalled = getDefaultMarshaller(type).unmarshal(value);
+        }
+    }
+    return unmarshalled;
+}
+function unmarshalPrimitiveType(
 // Support numbers also
 value, classConstructor) {
-    let result = undefined;
-    if (value === undefined) {
-        result = undefined;
+    const defaultMarshaller = classConstructor
+        ? getDefaultMarshaller(classConstructor)
+        : defaultStringMarshaller;
+    const strValue = typeof value === 'number' ? `${value}` : value;
+    const unmarshalled = defaultMarshaller.unmarshal(strValue);
+    return unmarshalled;
+}
+
+class Fields {
+}
+/**
+ * Used to accumulate the metadatas from all of the property decorators:
+ * `XmlChildElem`, `XmlAttribute`, `XmlChardata`, `XmlComments`
+ */
+class InternalXmlPropertyOptions extends Fields {
+    constructor(init) {
+        super();
+        Object.assign(this, init);
     }
-    else {
-        const castToStr = `${value}`;
-        if (classConstructor === Number) {
-            result =
-                // parse empty strings to nulls when the specified type is Number
-                // bacause there is no convenient way to represent an empty string as a number,
-                // there is an idea to convert them to 0, but it's an implicit and non obvious behaviour.
-                // Maybe a better idea would be to convert them to NaN just as parseFloat does.
-                castToStr === '' ? null : parseFloat(castToStr);
-        }
-        else if (classConstructor === BigInt) {
-            result = castToStr === '' ? null : BigInt(castToStr);
-        }
-        else if (classConstructor === Boolean) {
-            result = castToStr === '' ? null : castToStr === 'true';
-        }
-        else {
-            // classConstructor is String or any other type, then fallback to String:
-            // In case of the string dont cast empty strings to nulls
-            result = castToStr;
-        }
+    isPrimitiveType() {
+        return this.type ? isPrimitiveType(this.type()) : false;
     }
-    return result;
 }
 
 /**
@@ -390,7 +599,7 @@ function XmlElem(opts) {
         opts = opts || {};
         opts.name = opts.name || target.name;
         if (!opts.name) {
-            throw new Error(`xml-class-transformer: Failed to get the element name for class ${target}. Specify it with @XmlElem({ name: '...' }) decorator.`);
+            throw errNoXmlNameForClass(target);
         }
         registry.setEntityOptions(target, opts);
         return target;
@@ -412,7 +621,7 @@ function XmlElem(opts) {
  * }
  */
 function XmlChildElem(opts) {
-    return propertyDecoratorFactory('XmlChildElem', opts);
+    return propertyDecoratorFactory('XmlChildElem', new InternalXmlPropertyOptions(opts));
 }
 /**
  * Class property decorator.
@@ -426,7 +635,7 @@ function XmlChildElem(opts) {
  * }
  */
 function XmlAttribute(opts) {
-    return propertyDecoratorFactory('XmlAttribute', Object.assign(Object.assign({}, opts), { attr: true }));
+    return propertyDecoratorFactory('XmlAttribute', new InternalXmlPropertyOptions(Object.assign(Object.assign({}, opts), { attr: true })));
 }
 /**
  * This decorator, when used on a class property, collects all the comments
@@ -464,9 +673,9 @@ function XmlComments() {
             throw new TypeError(`xml-class-transformer: Can't use @XmlComments({...}) decorator on a symbol property ` +
                 `at ${target.constructor.name}#${propertyKey.toString()}`);
         }
-        registry.setPropertyOptions(target.constructor, propertyKey, {
+        registry.setPropertyOptions(target.constructor, propertyKey, new InternalXmlPropertyOptions({
             comments: true,
-        });
+        }));
     };
 }
 /**
@@ -501,7 +710,7 @@ function XmlComments() {
  * ```
  */
 function XmlChardata(opts) {
-    return propertyDecoratorFactory('XmlChardata', Object.assign(Object.assign({}, opts), { chardata: true }));
+    return propertyDecoratorFactory('XmlChardata', new InternalXmlPropertyOptions(Object.assign(Object.assign({}, opts), { chardata: true })));
 }
 function propertyDecoratorFactory(decoratorName, opts) {
     return (target, propertyKey) => {
@@ -510,18 +719,22 @@ function propertyDecoratorFactory(decoratorName, opts) {
             throw new TypeError(`xml-class-transformer: Can't use @${decoratorName}({...}) decorator on a symbol property ` +
                 `at ${target.constructor.name}#${propertyKey.toString()}`);
         }
-        if (opts.union && opts.type) {
-            throw new TypeError(`xml-class-transformer: The "union" option is not compatible with the "type" option at ` +
-                `${target.constructor.name}#${propertyKey.toString()}.`);
-        }
-        if (!opts.union && !opts.type && !opts.transformer) {
-            throw new TypeError(`xml-class-transformer: No "type", "union" or "transformer" was specified for the ` +
+        if (!opts.union && !opts.type && !opts.marshaller) {
+            throw new TypeError(`xml-class-transformer: No "type", "union" or "marshaller" was specified for the ` +
                 `${target.constructor.name}#${propertyKey.toString()}. Add it to ` +
                 `the @${decoratorName}({...}) decorator.`);
         }
+        if ((opts.union && opts.type) ||
+            (opts.union && opts.marshaller) ||
+            (opts.type && opts.marshaller)) {
+            throw new TypeError(`xml-class-transformer: The "union", "type" or "marshaller" options are not compatible with each other at ` +
+                `${target.constructor.name}#${propertyKey.toString()}. ` +
+                `You can specify only one of them.`);
+        }
         if (opts.union && !opts.union().length) {
             throw new TypeError(`xml-class-transformer: The "union" option in @${decoratorName}({ ... }) can't be empty ` +
-                `at ${target.constructor.name}#${propertyKey.toString()}. Either remove the "union" option or provide it with at least one type.`);
+                `at ${target.constructor.name}#${propertyKey.toString()}. ` +
+                `Either remove the "union" option or provide it with at least one type.`);
         }
         if (opts.union) {
             if (opts.name) {
@@ -542,7 +755,7 @@ function propertyDecoratorFactory(decoratorName, opts) {
             const unionArr = opts.union();
             const foundPrimitiveType = unionArr.find((type) => isPrimitiveType(type));
             if (foundPrimitiveType) {
-                throw new TypeError(`xml-class-transformer: unions of primitive types (String, Number or Boolean) are not supported. ` +
+                throw new TypeError(`xml-class-transformer: unions of primitive types (String, Number, Boolean, BigInt or Date) are not supported. ` +
                     `Fix it in the decorator @${decoratorName}({ ` +
                     `union: ${serializeUnionForLog(unionArr)}, ... }) ` +
                     `at "${target.constructor.name}#${propertyKey.toString()}".`);
@@ -553,4 +766,3 @@ function propertyDecoratorFactory(decoratorName, opts) {
 }
 
 export { XmlAttribute, XmlChardata, XmlChildElem, XmlComments, XmlElem, classToXml, xmlToClass };
-//# sourceMappingURL=index.esm.js.map

@@ -20,7 +20,7 @@
  *
  *
  * @example
- * // Example of a plain object that is assignable to this interface
+ * // Example of a plain object that is assignable to the Marshaller interface
  * const momentMarshaller: Marshaller<moment.Moment> = {
  *    marshal = (val: moment.Moment): string => val.toISOString(),
  *    unmarshal = (chardata: string): moment.Moment => moment(chardata) ,

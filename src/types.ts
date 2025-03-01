@@ -2,6 +2,9 @@ import type * as xmljs from 'xml-js-v2';
 import { Marshaller } from './marshallers';
 
 /**
+ * Only here for the sake of the documentation and type checking.
+ * No need to "implement" this interface.
+ *
  * The XML class's constructor should not require any arguments.
  * This is because the xml-class-transformer needs to be able to construct them
  * when it needs to. And if the constructor relies on the arguments then it will crash.
@@ -24,6 +27,11 @@ export type XmlClass = {
   new (/** here should not be any required arguments */): any;
 };
 
+/**
+ * These types are considered as primitive,
+ * which means that there are built-in marshallers for them,
+ * and you can simply do `{ type: () => String }`.
+ */
 export type XmlPrimitiveType =
   | typeof String
   | typeof Number

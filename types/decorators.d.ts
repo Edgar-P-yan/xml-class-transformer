@@ -110,4 +110,3 @@ export declare function XmlComments(): PropertyDecorator;
  * ```
  */
 export declare function XmlChardata(opts: XmlChardataOptions): PropertyDecorator;
-//# sourceMappingURL=decorators.d.ts.map
