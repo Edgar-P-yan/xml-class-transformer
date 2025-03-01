@@ -1,4 +1,12 @@
 import { expect } from 'chai';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  ValidateNested,
+  validateSync,
+  ValidationError,
+} from 'class-validator';
 // @ts-ignore
 import _baseIsEqual from 'lodash._baseisequal';
 import {
@@ -948,6 +956,80 @@ describe('xml-class-transformer', () => {
         `<?xml version="1.0" encoding="UTF-8"?><TestMarshaller/>`,
       );
     });
+
+    describe('showcase harmony with class-validator', () => {
+      it('works with class-validator', () => {
+        enum ArticleStatus {
+          Published = 'published',
+          Draft = 'draft',
+          Archived = 'archived',
+        }
+
+        class Author {
+          @IsString()
+          @IsNotEmpty()
+          @XmlChildElem({ type: () => String })
+          Name: string;
+        }
+        class Comment {
+          @IsString()
+          @IsNotEmpty()
+          @XmlChildElem({ type: () => String })
+          Text: string;
+        }
+        class Article {
+          @IsString()
+          @IsNotEmpty()
+          @XmlChildElem({ type: () => String })
+          Title: string;
+
+          @IsEnum(ArticleStatus)
+          @XmlChildElem({ type: () => String })
+          Status: ArticleStatus;
+
+          @ValidateNested()
+          @XmlChildElem({ type: () => Author })
+          Author: Author;
+
+          @ValidateNested({ each: true })
+          @XmlChildElem({ name: 'Comment', type: () => Comment })
+          Comments: Comment[];
+
+          constructor(data?: Article) {
+            Object.assign(this, data || {});
+          }
+        }
+
+        const parsed = xmlToClass(
+          `<?xml version="1.0" encoding="UTF-8"?>
+          <Article>
+            <Title>Some article title</Title>
+            <Status>published</Status>
+            <Author><Name>John Doe</Name></Author>
+            <Comment><Text>Some comment</Text></Comment>
+            <Comment><Text>Some other comment</Text></Comment>
+          </Article>`,
+          Article,
+        );
+        const valid = validateSync(parsed);
+        expect(valid).to.be.empty;
+
+        const parsedErr1 = xmlToClass(
+          `<?xml version="1.0" encoding="UTF-8"?>
+          <Article>
+            <Title></Title><Status>unknownstatus-aboba</Status>
+            <Author><Name>John Doe</Name></Author>
+            <Comment><Text></Text></Comment>
+            <Comment><Text>Some other comment</Text></Comment>
+          </Article>`,
+          Article,
+        );
+        const expErr = validateSync(parsedErr1);
+        assertClassValidator(expErr, 'Title', 'isNotEmpty');
+        assertClassValidator(expErr, 'Status', 'isEnum');
+        assertClassValidator(expErr, 'Comments.Text', 'isNotEmpty');
+      });
+    });
   });
 });
 
@@ -1014,3 +1096,36 @@ describe('isEqual', () => {
     ).eq(true);
   });
 });
+
+function assertClassValidator(
+  errors: ValidationError[],
+  propPath: string,
+  constraint: string,
+) {
+  function find(
+    errors: ValidationError[],
+    propPath: string[],
+  ): ValidationError | undefined {
+    const prop = propPath[0];
+    const foundProp = errors.find((error) => {
+      return error.property === prop;
+    });
+
+    if (foundProp && foundProp.children) {
+      if (propPath.length >= 2) {
+        return find(foundProp.children, propPath.slice(1));
+      } else {
+        return foundProp;
+      }
+    }
+
+    return undefined;
+  }
+
+  const err = find(errors, propPath.split('.'));
+
+  expect(err).be.ok;
+  console.log(err);
+  expect(err!.constraints).be.ok;
+  expect(err!.constraints).have.property(constraint);
+}
