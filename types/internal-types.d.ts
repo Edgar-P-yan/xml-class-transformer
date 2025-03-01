@@ -1,3 +1,4 @@
+import { CustomTransformer } from './transformers';
 import { XmlClass, XmlType } from './types';
 /**
  * Used to accumulate the metadatas from all of the property decorators:
@@ -5,6 +6,7 @@ import { XmlClass, XmlType } from './types';
  */
 export interface InternalXmlPropertyOptions {
     type?: () => XmlType;
+    transformer?: CustomTransformer<unknown>;
     union?: () => XmlClass[];
     array?: boolean;
     name?: string | undefined;

@@ -522,8 +522,8 @@ function propertyDecoratorFactory(decoratorName, opts) {
             throw new TypeError(`xml-class-transformer: The "union" option is not compatible with the "type" option at ` +
                 `${target.constructor.name}#${propertyKey.toString()}.`);
         }
-        if (!opts.union && !opts.type) {
-            throw new TypeError(`xml-class-transformer: No "type" or "union" was specified for the ` +
+        if (!opts.union && !opts.type && !opts.transformer) {
+            throw new TypeError(`xml-class-transformer: No "type", "union" or "transformer" was specified for the ` +
                 `${target.constructor.name}#${propertyKey.toString()}. Add it to ` +
                 `the @${decoratorName}({...}) decorator.`);
         }

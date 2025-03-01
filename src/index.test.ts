@@ -1,4 +1,6 @@
 import { expect } from 'chai';
+// @ts-ignore
+import _baseIsEqual from 'lodash._baseisequal';
 import {
   XmlClass,
   classToXml,
@@ -9,6 +11,7 @@ import {
   XmlChardata,
   XmlComments,
 } from './index';
+import { Marshaller } from './marshallers';
 
 @XmlElem({ name: 'Bucket' })
 export class Bucket {
@@ -303,14 +306,14 @@ describe('xml-class-transformer', () => {
       '<?xml version="1.0" encoding="UTF-8"?><article language="en" comments="10"><title>Some article title</title></article>',
     );
 
-    const _class = xmlToClass(
+    const classConstr = xmlToClass(
       '<?xml version="1.0" encoding="UTF-8"?><article language="en" comments="10"><title>Some article title</title></article>',
       Article,
     );
 
-    expect(_class).instanceOf(Article);
+    expect(classConstr).instanceOf(Article);
     // checks if there are no extra propeties
-    expect(_class).deep.eq({
+    expect(classConstr).deep.eq({
       language: 'en',
       comments: 10,
       title: 'Some article title',
@@ -352,13 +355,11 @@ describe('xml-class-transformer', () => {
 
     testBidirConversion(
       new TestChardata({ chardata: 'test' }),
-      TestChardata,
       `<?xml version="1.0" encoding="UTF-8"?><TestChardata>test</TestChardata>`,
     );
 
     testBidirConversion(
       new TestNumericChardata({ chardata: 123.234 }),
-      TestNumericChardata,
       `<?xml version="1.0" encoding="UTF-8"?><TestNumericChardata>123.234</TestNumericChardata>`,
     );
   });
@@ -395,7 +396,6 @@ describe('xml-class-transformer', () => {
 
     testBidirConversion(
       new NullPropsNumber({ nullPropNumber: null }),
-      NullPropsNumber,
       `<?xml version="1.0" encoding="UTF-8"?><NullPropsNumber><nullPropNumber></nullPropNumber></NullPropsNumber>`,
     );
   });
@@ -412,7 +412,6 @@ describe('xml-class-transformer', () => {
 
     testBidirConversion(
       new NullPropsBoolean({ nullPropBoolean: null }),
-      NullPropsBoolean,
       `<?xml version="1.0" encoding="UTF-8"?><NullPropsBoolean><nullPropBoolean></nullPropBoolean></NullPropsBoolean>`,
     );
   });
@@ -429,7 +428,6 @@ describe('xml-class-transformer', () => {
 
     testBidirConversion(
       new UndefinedPropsStr({ undefinedPropStr: undefined }),
-      UndefinedPropsStr,
       `<?xml version="1.0" encoding="UTF-8"?><UndefinedPropsStr/>`,
     );
   });
@@ -446,7 +444,6 @@ describe('xml-class-transformer', () => {
 
     testBidirConversion(
       new UndefinedPropsNumber({ undefinedPropNumber: undefined }),
-      UndefinedPropsNumber,
       `<?xml version="1.0" encoding="UTF-8"?><UndefinedPropsNumber/>`,
     );
   });
@@ -468,13 +465,11 @@ describe('xml-class-transformer', () => {
 
     testBidirConversion(
       new UndefinedOrNullForObj({ obj: undefined }),
-      UndefinedOrNullForObj,
       `<?xml version="1.0" encoding="UTF-8"?><UndefinedOrNullForObj/>`,
     );
 
     testBidirConversion(
       new UndefinedOrNullForObj({ obj: null }),
-      UndefinedOrNullForObj,
       `<?xml version="1.0" encoding="UTF-8"?><UndefinedOrNullForObj/>`,
       { obj: undefined }, // null for an embedded xml entity gets casted to undefined when converted back to classes
     );
@@ -497,20 +492,17 @@ describe('xml-class-transformer', () => {
 
     testBidirConversion(
       new TestEmptyArraysRoot({ emptyOrNullOrUndefinedArray: [] }),
-      TestEmptyArraysRoot,
       '<?xml version="1.0" encoding="UTF-8"?><TestEmptyArraysRoot/>',
     );
 
     testBidirConversion(
       new TestEmptyArraysRoot({ emptyOrNullOrUndefinedArray: null }),
-      TestEmptyArraysRoot,
       '<?xml version="1.0" encoding="UTF-8"?><TestEmptyArraysRoot/>',
       new TestEmptyArraysRoot({ emptyOrNullOrUndefinedArray: [] }),
     );
 
     testBidirConversion(
       new TestEmptyArraysRoot({ emptyOrNullOrUndefinedArray: undefined }),
-      TestEmptyArraysRoot,
       '<?xml version="1.0" encoding="UTF-8"?><TestEmptyArraysRoot/>',
       new TestEmptyArraysRoot({ emptyOrNullOrUndefinedArray: [] }),
     );
@@ -780,6 +772,25 @@ describe('xml-class-transformer', () => {
     });
   });
 
+  it('works with dates', () => {
+    class TestDate {
+      @XmlChildElem({ type: () => Date })
+      date: Date | undefined | null;
+    }
+
+    testBidirConversion(
+      construct(TestDate, { date: new Date('2025-01-03T15:31:17.194Z') }),
+      '<?xml version="1.0" encoding="UTF-8"?>' +
+        `<TestDate><date>2025-01-03T15:31:17.194Z</date></TestDate>`,
+    );
+
+    testBidirConversion(
+      construct(TestDate, { date: new Date('2025-01-03T15:31:17.194Z') }),
+      '<?xml version="1.0" encoding="UTF-8"?>' +
+        `<TestDate><date>2025-01-03T15:31:17.194Z</date></TestDate>`,
+    );
+  });
+
   describe('comments', () => {
     @XmlElem()
     class TestComments {
@@ -810,26 +821,22 @@ describe('xml-class-transformer', () => {
     it('parses and serializes one and more comments', () => {
       testBidirConversion(
         new TestComments({ comments: ['some comment'] }),
-        TestComments,
         '<?xml version="1.0" encoding="UTF-8"?><TestComments><!--some comment--></TestComments>',
       );
 
       testBidirConversion(
         new TestComments({ comments: ['some comment', 'another comment'] }),
-        TestComments,
         '<?xml version="1.0" encoding="UTF-8"?><TestComments><!--some comment--><!--another comment--></TestComments>',
       );
 
       testBidirConversion(
         new TestComments({}),
-        TestComments,
         '<?xml version="1.0" encoding="UTF-8"?><TestComments/>',
         { comments: [] },
       );
 
       testBidirConversion(
         new TestComments({ comments: null }),
-        TestComments,
         '<?xml version="1.0" encoding="UTF-8"?><TestComments/>',
         { comments: [] },
       );
@@ -842,7 +849,6 @@ describe('xml-class-transformer', () => {
           comments: ['comments'],
           elemBelow: 'str2',
         }),
-        TestCommentsWithOtherElems,
         '<?xml version="1.0" encoding="UTF-8"?><TestCommentsWithOtherElems>' +
           '<elemAbove>str</elemAbove><!--comments--><elemBelow>str2</elemBelow>' +
           '</TestCommentsWithOtherElems>',
@@ -864,7 +870,6 @@ describe('xml-class-transformer', () => {
 
     testBidirConversion(
       new ArrayOfPrimitives({ prop: ['a', 'b', 'c'] }),
-      ArrayOfPrimitives,
       '<?xml version="1.0" encoding="UTF-8"?><ArrayOfPrimitives><prop>a</prop><prop>b</prop><prop>c</prop></ArrayOfPrimitives>',
       { prop: ['a', 'b', 'c'] },
     );
@@ -885,19 +890,127 @@ describe('xml-class-transformer', () => {
       chardata: 'first text node second text node third text node',
     });
   });
+
+  describe('Custom Marshallers', () => {
+    class CapitalizedBoolean implements Marshaller<boolean> {
+      marshal(obj: boolean): string {
+        return obj ? 'True' : 'False';
+      }
+
+      unmarshal(chardata: string | undefined): boolean {
+        return chardata == 'True' ? true : false;
+      }
+    }
+
+    @XmlElem()
+    class TestMarshaller {
+      @XmlChildElem({ marshaller: new CapitalizedBoolean() })
+      flag: boolean | undefined | null;
+
+      constructor(data?: TestMarshaller) {
+        Object.assign(this, data || {});
+      }
+    }
+
+    it('custom marshaller', () => {
+      testBidirConversion(
+        new TestMarshaller({ flag: true }),
+        '<?xml version="1.0" encoding="UTF-8"?><TestMarshaller><flag>True</flag></TestMarshaller>',
+      );
+
+      testBidirConversion(
+        new TestMarshaller({ flag: false }),
+        '<?xml version="1.0" encoding="UTF-8"?><TestMarshaller><flag>False</flag></TestMarshaller>',
+      );
+
+      testBidirConversion(
+        new TestMarshaller({ flag: undefined }),
+        '<?xml version="1.0" encoding="UTF-8"?><TestMarshaller><flag>False</flag></TestMarshaller>',
+        { flag: false },
+      );
+    });
+
+    it('undefined from marshaller', () => {
+      class TestMarshaller {
+        @XmlChildElem({
+          marshaller: {
+            marshal: (val: boolean | undefined) =>
+              val === undefined ? undefined : val ? 'True' : 'False',
+            unmarshal: (chardata) =>
+              chardata === undefined ? undefined : chardata === 'True',
+          },
+        })
+        flag: boolean | undefined;
+      }
+
+      testBidirConversion(
+        construct(TestMarshaller, { flag: undefined }),
+        `<?xml version="1.0" encoding="UTF-8"?><TestMarshaller/>`,
+      );
+    });
+  });
 });
 
 function testBidirConversion(
-  input: any,
-  classType: XmlClass,
+  input: object,
   expectedXml: string,
-  expectedObj?: any,
+  expectedObj?: object,
 ): void {
+  const classType = input.constructor as XmlClass;
   const xml = classToXml(input);
   console.log('testBidirConversion:', xml);
   expect(xml).eq(expectedXml);
 
   const backToClass = xmlToClass(xml, classType);
 
-  expect(backToClass).deep.eq(expectedObj || input);
+  if (!isEqual(backToClass, expectedObj || input)) {
+    throw new Error(
+      `Not equal. Expected: ${JSON.stringify(
+        expectedObj || input,
+      )}, Actual: ${JSON.stringify(backToClass)}`,
+    );
+  }
 }
+
+function construct<T extends XmlClass>(
+  classConstr: T,
+  init: InstanceType<T>,
+): InstanceType<T> {
+  const obj = new classConstr();
+  Object.assign(obj, init);
+  return obj;
+}
+
+function isEqual(value: unknown, other: unknown): boolean {
+  // The _.isEqual treats objects with different constructors as different.
+  // We want the opposite to make things simpler. So we take the internal
+  // _baseIsEqual function and pass to it the internal PARTIAL_COMPARE_FLAG flag
+  // which turns off the constructor comparison.
+  return _baseIsEqual(value, other, undefined, 2);
+}
+
+describe('isEqual', () => {
+  it('true for different constructors', () => {
+    class A {
+      constructor(d?: object) {
+        Object.assign(this, d || {});
+      }
+    }
+    class B {
+      constructor(d?: object) {
+        Object.assign(this, d || {});
+      }
+    }
+    expect(isEqual(new A(), new B())).eq(true);
+    expect(isEqual(new A({ a: 1 }), new B())).eq(false);
+    expect(isEqual(new A({ a: new Date(0) }), new B({ a: new Date(0) }))).eq(
+      true,
+    );
+    expect(
+      isEqual(
+        new A({ i: new B({ o: new A({ u: new B() }) }) }),
+        new B({ i: new A({ o: new B({ u: new A() }) }) }),
+      ),
+    ).eq(true);
+  });
+});

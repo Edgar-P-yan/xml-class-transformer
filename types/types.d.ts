@@ -1,4 +1,6 @@
 import type * as xmljs from 'xml-js-v2';
+import { CustomTransformer } from './transformers';
+
 /**
  * The XML class's constructor should not require any arguments.
  * This is because the xml-class-transformer needs to be able to construct them
@@ -52,6 +54,10 @@ export interface XmlChildElemOptions {
      * Not compatible with the `union` option.
      */
     type?: () => XmlType;
+    /**
+     * A custom transformer.
+     */
+    transformer?: CustomTransformer<unknown>;
     /**
      * You can also specify union types, then at the parsing time
      * the one whose name matches the XML element name will be selected.
