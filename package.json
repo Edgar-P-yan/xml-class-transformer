@@ -1,6 +1,6 @@
 {
   "name": "xml-class-transformer",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "Fluently parse XML into beautiful JS/TS classes and serialize them. GoLang's encoding/xml alternative for JS/TS world.",
   "cdn": "dist/index.umd.js",
   "main": "dist/index.js",
