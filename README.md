@@ -56,6 +56,7 @@ console.log(parsedArticle); // Article { title: 'Some title', content: 'The cont
 - XML Attributes.
 - XML Declarations (`<?xml version="1.0" encoding="UTF-8"?>`).
 - XML Comments
+- Custom marshallers, you can define your own marshaller/unmarshaller for any field.
 - Battle-tested in production and unit coverage "> 80%".
 - Complex and nested structures.
 - Transformation and validation (with `class-transformer` and `class-validator`).
@@ -69,7 +70,6 @@ might add support for them in the future.
 - XML Namespaces
 - Custom ordering
 - Multiple chardata entries with the support for specified ordering.
-- Custom parsers/serializers
 - CLI tool for automatically generating class declarations out of an XML input. Something similar to what does [miku/zek](https://github.com/miku/zek) for GoLang.
 
 ## Table of Contents

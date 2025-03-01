@@ -27,7 +27,6 @@ function createOutputOptions(options) {
     banner,
     name: 'xml-class-transformer',
     exports: 'named',
-    sourcemap: true,
     ...options,
   };
 }

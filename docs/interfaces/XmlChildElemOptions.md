@@ -7,6 +7,7 @@
 ### Properties
 
 - [array](XmlChildElemOptions.md#array)
+- [marshaller](XmlChildElemOptions.md#marshaller)
 - [name](XmlChildElemOptions.md#name)
 - [type](XmlChildElemOptions.md#type)
 - [union](XmlChildElemOptions.md#union)
@@ -18,11 +19,50 @@
 • `Optional` **array**: `boolean`
 
 If true, the property will be parsed and serialized as an array.
-Not compatible with the `attr` and `chardata` options.
 
 #### Defined in
 
-[src/types.ts:85](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/types.ts#L85)
+[src/types.ts:122](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/types.ts#L122)
+
+___
+
+### marshaller
+
+• `Optional` **marshaller**: [`Marshaller`](Marshaller.md)<`unknown`\>
+
+A custom marshaller.
+Not compatible with the `type` and `union` options.
+
+**`Example`**
+
+```ts
+class CapitalizedBooleanMarshaller implements Marshaller<boolean> {
+   marshal(obj: boolean): string {
+     return obj ? 'True' : 'False';
+   }
+
+   unmarshal(chardata: string | undefined): boolean {
+     return chardata == 'True' ? true : false;
+   }
+}
+@XmlChildElem({ marshaller: new CapitalizedBooleanMarshaller() })
+isSomethingEnabled: boolean;
+```
+
+**`Example`**
+
+```ts
+const momentMarshaller: Marshaller<moment.Moment> = {
+   marshal = (val: moment.Moment): string => val.toISOString(),
+   unmarshal = (chardata: string): moment.Moment => moment(chardata) ,
+}
+@XmlChildElem({ marshaller: momentMarshaller })
+creationDateOfSomething: moment.Moment;
+```
+
+#### Defined in
+
+[src/types.ts:102](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/types.ts#L102)
 
 ___
 
@@ -34,12 +74,12 @@ A custom XML element name.
 If not specified, the property name will be used.
 It is recommended to specify it explicitly for expressiveness.
 
-Not compatible with the `chardata` option, bacause chardata is not an element.
-Not compatible with the `union` option, because union typed elements name is gathered from the union's members names.
+Not compatible with the `union` option, because union typed elements name is
+gathered from the union's members names.
 
 #### Defined in
 
-[src/types.ts:95](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/types.ts#L95)
+[src/types.ts:132](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/types.ts#L132)
 
 ___
 
@@ -53,14 +93,18 @@ ___
 
 Specify primitive type or class type for parsing and serializing.
 
+Not compatible with the `union` and `marshaller` options.
+
 **`Example`**
 
+```ts
+{ type: () => String }
 { type: () => Number }
 { type: () => Boolean }
 { type: () => BigInt }
+{ type: () => Date }
 { type: () => CustomClass }
-
-Not compatible with the `union` option.
+```
 
 ##### Returns
 
@@ -68,7 +112,7 @@ Not compatible with the `union` option.
 
 #### Defined in
 
-[src/types.ts:64](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/types.ts#L64)
+[src/types.ts:75](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/types.ts#L75)
 
 ___
 
@@ -85,7 +129,7 @@ the one whose name matches the XML element name will be selected.
 The serialization of union types is performed in the same manner:
 the name of the class is used as the XML element name.
 
-Union types are not compatible with the `type` and `name` options.
+Union types are not compatible with the `type`, `marshaller` and `name` options.
 
 Primitive types are not supported in unions.
 
@@ -101,4 +145,4 @@ Primitive types are not supported in unions.
 
 #### Defined in
 
-[src/types.ts:79](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/types.ts#L79)
+[src/types.ts:117](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/types.ts#L117)

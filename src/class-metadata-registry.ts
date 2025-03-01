@@ -1,3 +1,4 @@
+import { errNoXmlNameForClass, errUnknownClass } from './common';
 import { InternalXmlPropertyOptions } from './internal-types';
 import type { XmlClass, XmlElemOptions } from './types';
 
@@ -9,13 +10,13 @@ type ClassMetadatas = {
 export class ClassMetadataRegistry {
   private registry = new Map<XmlClass, ClassMetadatas>();
 
-  setEntityOptions(xClass: XmlClass, opts: XmlElemOptions): void {
-    const metadata = this.registry.get(xClass);
+  setEntityOptions(classConstructor: XmlClass, opts: XmlElemOptions): void {
+    const metadata = this.registry.get(classConstructor);
 
     if (metadata) {
       metadata.entity = opts;
     } else {
-      this.registry.set(xClass, {
+      this.registry.set(classConstructor, {
         entity: opts,
         properties: new Map(),
       });
@@ -23,11 +24,11 @@ export class ClassMetadataRegistry {
   }
 
   setPropertyOptions(
-    xClass: XmlClass,
+    classConstr: XmlClass,
     propertyKey: string,
     opts: InternalXmlPropertyOptions,
   ): void {
-    const metadata = this.getOrCreate(xClass);
+    const metadata = this.getOrCreate(classConstr);
 
     if (opts.comments) {
       for (const [searchingPropKey, searchingOpts] of metadata.properties) {
@@ -35,8 +36,8 @@ export class ClassMetadataRegistry {
           throw new Error(
             `xml-class-transformer: only one @XmlComment() decorator is allowed per class. ` +
               `Can not define @XmlComment() decorator for  ` +
-              `${xClass.name}#${propertyKey} since it's already used for ` +
-              `${xClass.name}#${searchingPropKey}.`,
+              `${classConstr.name}#${propertyKey} since it's already used for ` +
+              `${classConstr.name}#${searchingPropKey}.`,
           );
         }
       }
@@ -48,8 +49,8 @@ export class ClassMetadataRegistry {
           throw new Error(
             `xml-class-transformer: can't use XML element name defined in ` +
               `{ name: ${JSON.stringify(opts.name)} } for ` +
-              `${xClass.name}#${propertyKey} since it's already used for ` +
-              `${xClass.name}#${searchingPropKey}. Change it to something else.`,
+              `${classConstr.name}#${propertyKey} since it's already used for ` +
+              `${classConstr.name}#${searchingPropKey}. Change it to something else.`,
           );
         }
 
@@ -59,7 +60,7 @@ export class ClassMetadataRegistry {
         if (opts.chardata && searchingOpts.chardata) {
           throw new Error(
             `xml-class-transformer: an XML element can have only one chardata property. ` +
-              `Both ${xClass.name}#${propertyKey} and ${xClass.name}#${searchingOpts.name} ` +
+              `Both ${classConstr.name}#${propertyKey} and ${classConstr.name}#${searchingOpts.name} ` +
               `are defined as chardata, which is not valid.`,
           );
         }
@@ -69,27 +70,52 @@ export class ClassMetadataRegistry {
     metadata.properties.set(propertyKey, opts);
   }
 
-  private getOrCreate(xClass: XmlClass): ClassMetadatas {
-    const existing = this.registry.get(xClass);
+  private getOrCreate(classConstr: XmlClass): ClassMetadatas {
+    const existing = this.registry.get(classConstr);
     if (existing) {
       return existing;
     } else {
       const newMetadatas: ClassMetadatas = {
         entity: {
-          name: xClass?.name,
+          name: classConstr?.name,
         },
         properties: new Map(),
       };
 
-      this.registry.set(xClass, newMetadatas);
+      this.registry.set(classConstr, newMetadatas);
 
       return newMetadatas;
     }
   }
 
-  get(xClass: XmlClass): ClassMetadatas | undefined {
-    return this.registry.get(xClass);
+  get(classConstr: XmlClass): ClassMetadatas | undefined {
+    return this.registry.get(classConstr);
+  }
+
+  resolveUnionComponents(union: XmlClass[]): MapTagToClassConstr {
+    // TODO: optimize and cache this map:
+    const tagNameToClassType: MapTagToClassConstr = new Map();
+
+    for (const classType of union) {
+      const classTypeMetadata = registry.get(classType);
+
+      if (!classTypeMetadata) {
+        throw errUnknownClass(classType);
+      }
+
+      const tagName = classTypeMetadata.entity.name;
+
+      if (!tagName) {
+        throw errNoXmlNameForClass(classType);
+      }
+
+      tagNameToClassType.set(tagName, classType);
+    }
+
+    return tagNameToClassType;
   }
 }
+
+type MapTagToClassConstr = Map<string, XmlClass>;
 
 export const registry = new ClassMetadataRegistry();

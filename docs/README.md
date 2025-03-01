@@ -7,6 +7,7 @@ xml-class-transformer
 ### Interfaces
 
 - [ClassToXmlOptions](interfaces/ClassToXmlOptions.md)
+- [Marshaller](interfaces/Marshaller.md)
 - [XmlAttributeOptions](interfaces/XmlAttributeOptions.md)
 - [XmlChardataOptions](interfaces/XmlChardataOptions.md)
 - [XmlChildElemOptions](interfaces/XmlChildElemOptions.md)
@@ -38,6 +39,9 @@ xml-class-transformer
 
 • **new XmlClass**(): `any`
 
+Only here for the sake of the documentation and type checking.
+No need to "implement" this interface.
+
 The XML class's constructor should not require any arguments.
 This is because the xml-class-transformer needs to be able to construct them
 when it needs to. And if the constructor relies on the arguments then it will crash.
@@ -62,17 +66,21 @@ enable the library to construct them without passing any arguments.
 
 #### Defined in
 
-[src/types.ts:22](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/types.ts#L22)
+[src/types.ts:26](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/types.ts#L26)
 
 ___
 
 ### XmlPrimitiveType
 
-Ƭ **XmlPrimitiveType**: typeof `String` \| typeof `Number` \| typeof `Boolean` \| typeof `BigInt`
+Ƭ **XmlPrimitiveType**: typeof `String` \| typeof `Number` \| typeof `Boolean` \| typeof `BigInt` \| typeof `Date`
+
+These types are considered as primitive,
+which means that there are built-in marshallers for them,
+and you can simply do `{ type: () => String }`.
 
 #### Defined in
 
-[src/types.ts:26](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/types.ts#L26)
+[src/types.ts:35](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/types.ts#L35)
 
 ___
 
@@ -82,7 +90,7 @@ ___
 
 #### Defined in
 
-[src/types.ts:32](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/types.ts#L32)
+[src/types.ts:42](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/types.ts#L42)
 
 ## Functions
 
@@ -115,7 +123,7 @@ class SomeXmlElement {
 
 #### Defined in
 
-[src/decorators.ts:79](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/decorators.ts#L79)
+[src/decorators.ts:84](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/decorators.ts#L84)
 
 ___
 
@@ -165,7 +173,7 @@ Output:
 
 #### Defined in
 
-[src/decorators.ts:162](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/decorators.ts#L162)
+[src/decorators.ts:174](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/decorators.ts#L174)
 
 ___
 
@@ -202,7 +210,7 @@ class SomeElement {
 
 #### Defined in
 
-[src/decorators.ts:64](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/decorators.ts#L64)
+[src/decorators.ts:66](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/decorators.ts#L66)
 
 ___
 
@@ -245,7 +253,7 @@ Output:
 
 #### Defined in
 
-[src/decorators.ts:115](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/decorators.ts#L115)
+[src/decorators.ts:123](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/decorators.ts#L123)
 
 ___
 
@@ -287,7 +295,7 @@ class SomeXmlElement {
 
 #### Defined in
 
-[src/decorators.ts:31](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/decorators.ts#L31)
+[src/decorators.ts:35](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/decorators.ts#L35)
 
 ___
 
@@ -308,13 +316,13 @@ ___
 
 #### Defined in
 
-[src/transform-class-to-xml.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/transform-class-to-xml.ts#L6)
+[src/transform-class-to-xml.ts:12](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/transform-class-to-xml.ts#L12)
 
 ___
 
 ### xmlToClass
 
-▸ **xmlToClass**<`T`\>(`xml`, `_class`): `InstanceType`<`T`\>
+▸ **xmlToClass**<`T`\>(`xml`, `classConstructor`, `options?`): `InstanceType`<`T`\>
 
 #### Type parameters
 
@@ -327,7 +335,8 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `xml` | `string` |
-| `_class` | `T` |
+| `classConstructor` | `T` |
+| `options?` | `XML2JS` |
 
 #### Returns
 
@@ -335,4 +344,4 @@ ___
 
 #### Defined in
 
-[src/transform-xml-to-class.ts:6](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/transform-xml-to-class.ts#L6)
+[src/transform-xml-to-class.ts:8](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/transform-xml-to-class.ts#L8)

@@ -1,6 +1,10 @@
 import type * as xmljs from 'xml-js-v2';
+import { Marshaller } from './marshallers';
 
 /**
+ * Only here for the sake of the documentation and type checking.
+ * No need to "implement" this interface.
+ *
  * The XML class's constructor should not require any arguments.
  * This is because the xml-class-transformer needs to be able to construct them
  * when it needs to. And if the constructor relies on the arguments then it will crash.
@@ -23,11 +27,17 @@ export type XmlClass = {
   new (/** here should not be any required arguments */): any;
 };
 
+/**
+ * These types are considered as primitive,
+ * which means that there are built-in marshallers for them,
+ * and you can simply do `{ type: () => String }`.
+ */
 export type XmlPrimitiveType =
   | typeof String
   | typeof Number
   | typeof Boolean
-  | typeof BigInt;
+  | typeof BigInt
+  | typeof Date;
 
 export type XmlType = XmlPrimitiveType | XmlClass;
 
@@ -52,16 +62,44 @@ export interface XmlChildElemOptions {
   /**
    * Specify primitive type or class type for parsing and serializing.
    *
+   * Not compatible with the `union` and `marshaller` options.
+   *
    * @example
    * { type: () => String }
    * { type: () => Number }
    * { type: () => Boolean }
    * { type: () => BigInt }
+   * { type: () => Date }
    * { type: () => CustomClass }
-   *
-   * Not compatible with the `union` option.
    */
   type?: () => XmlType;
+
+  /**
+   * A custom marshaller.
+   * Not compatible with the `type` and `union` options.
+   *
+   * @example
+   * class CapitalizedBooleanMarshaller implements Marshaller<boolean> {
+   *    marshal(obj: boolean): string {
+   *      return obj ? 'True' : 'False';
+   *    }
+   *
+   *    unmarshal(chardata: string | undefined): boolean {
+   *      return chardata == 'True' ? true : false;
+   *    }
+   * }
+   * \@XmlChildElem({ marshaller: new CapitalizedBooleanMarshaller() })
+   * isSomethingEnabled: boolean;
+   *
+   * @example
+   * const momentMarshaller: Marshaller<moment.Moment> = {
+   *    marshal = (val: moment.Moment): string => val.toISOString(),
+   *    unmarshal = (chardata: string): moment.Moment => moment(chardata) ,
+   * }
+   * \@XmlChildElem({ marshaller: momentMarshaller })
+   * creationDateOfSomething: moment.Moment;
+   */
+  marshaller?: Marshaller<unknown>;
 
   /**
    * You can also specify union types, then at the parsing time
@@ -69,7 +107,7 @@ export interface XmlChildElemOptions {
    * The serialization of union types is performed in the same manner:
    * the name of the class is used as the XML element name.
    *
-   * Union types are not compatible with the `type` and `name` options.
+   * Union types are not compatible with the `type`, `marshaller` and `name` options.
    *
    * Primitive types are not supported in unions.
    *
@@ -80,7 +118,6 @@ export interface XmlChildElemOptions {
 
   /**
    * If true, the property will be parsed and serialized as an array.
-   * Not compatible with the `attr` and `chardata` options.
    */
   array?: boolean;
 
@@ -89,8 +126,8 @@ export interface XmlChildElemOptions {
    * If not specified, the property name will be used.
    * It is recommended to specify it explicitly for expressiveness.
    *
-   * Not compatible with the `chardata` option, bacause chardata is not an element.
-   * Not compatible with the `union` option, because union typed elements name is gathered from the union's members names.
+   * Not compatible with the `union` option, because union typed elements name is
+   * gathered from the union's members names.
    */
   name?: string | undefined;
 }
@@ -106,12 +143,44 @@ export interface XmlAttributeOptions {
    * XML Attributes can only be of primitive types.
    * Specify the primitive type for parsing and serializing the attribute.
    *
+   * Not compatible with the `marshaller` options.
+   *
    * @example
    * { type: () => String }
    * { type: () => Number }
    * { type: () => Boolean }
+   * { type: () => BigInt }
+   * { type: () => Date }
+   * { type: () => CustomClass }
    */
-  type: () => XmlPrimitiveType;
+  type?: () => XmlPrimitiveType;
+
+  /**
+   * A custom marshaller.
+   * Not compatible with the `type` options.
+   *
+   * @example
+   * class CapitalizedBooleanMarshaller implements Marshaller<boolean> {
+   *    marshal(obj: boolean): string {
+   *      return obj ? 'True' : 'False';
+   *    }
+   *
+   *    unmarshal(chardata: string | undefined): boolean {
+   *      return chardata == 'True' ? true : false;
+   *    }
+   * }
+   * \@XmlAttribute({ marshaller: new CapitalizedBooleanMarshaller() })
+   * isSomethingEnabled: boolean;
+   *
+   * @example
+   * const momentMarshaller: Marshaller<moment.Moment> = {
+   *    marshal = (val: moment.Moment): string => val.toISOString(),
+   *    unmarshal = (chardata: string): moment.Moment => moment(chardata) ,
+   * }
+   * \@XmlAttribute({ marshaller: momentMarshaller })
+   * creationDateOfSomething: moment.Moment;
+   */
+  marshaller?: Marshaller<unknown>;
 }
 
 export interface XmlChardataOptions {
@@ -119,13 +188,44 @@ export interface XmlChardataOptions {
    * An XML chardata an only be of primitive types.
    * Specify the primitive type for parsing and serializing the chardata.
    *
+   * Not compatible with the `marshaller` options.
+   *
    * @example
    * { type: () => String }
    * { type: () => Number }
-   * { type: () => BigInt }
    * { type: () => Boolean }
+   * { type: () => BigInt }
+   * { type: () => Date }
+   * { type: () => CustomClass }
    */
-  type: () => XmlPrimitiveType;
+  type?: () => XmlPrimitiveType;
+
+  /**
+   * A custom marshaller.
+   * Not compatible with the `type` options.
+   *
+   * @example
+   * class CapitalizedBooleanMarshaller implements Marshaller<boolean> {
+   *    marshal(obj: boolean): string {
+   *      return obj ? 'True' : 'False';
+   *    }
+   *
+   *    unmarshal(chardata: string | undefined): boolean {
+   *      return chardata == 'True' ? true : false;
+   *    }
+   * }
+   * \@XmlChardata({ marshaller: new CapitalizedBooleanMarshaller() })
+   * isSomethingEnabled: boolean;
+   *
+   * @example
+   * const momentMarshaller: Marshaller<moment.Moment> = {
+   *    marshal = (val: moment.Moment): string => val.toISOString(),
+   *    unmarshal = (chardata: string): moment.Moment => moment(chardata) ,
+   * }
+   * \@XmlChardata({ marshaller: momentMarshaller })
+   * creationDateOfSomething: moment.Moment;
+   */
+  marshaller?: Marshaller<unknown>;
 }
 
 export interface ClassToXmlOptions extends xmljs.Options.JS2XML {

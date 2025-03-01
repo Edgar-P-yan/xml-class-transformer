@@ -297,7 +297,7 @@ true
 
 #### Defined in
 
-[src/types.ts:136](https://github.com/Edgar-P-yan/xml-class-transformer/blob/7aaf245/src/types.ts#L136)
+[src/types.ts:236](https://github.com/Edgar-P-yan/xml-class-transformer/blob/ff751f1/src/types.ts#L236)
 
 ___
 

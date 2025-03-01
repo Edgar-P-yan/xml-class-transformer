@@ -1,5 +1,9 @@
 import { registry } from './class-metadata-registry';
-import { isPrimitiveType, serializeUnionForLog } from './common';
+import {
+  errNoXmlNameForClass,
+  isPrimitiveType,
+  serializeUnionForLog,
+} from './common';
 import { InternalXmlPropertyOptions } from './internal-types';
 import type {
   XmlAttributeOptions,
@@ -35,9 +39,7 @@ export function XmlElem(opts?: XmlElemOptions): ClassDecorator {
     opts.name = opts.name || target.name;
 
     if (!opts.name) {
-      throw new Error(
-        `xml-class-transformer: Failed to get the element name for class ${target}. Specify it with @XmlElem({ name: '...' }) decorator.`,
-      );
+      throw errNoXmlNameForClass(target);
     }
 
     registry.setEntityOptions(target, opts);
@@ -62,7 +64,10 @@ export function XmlElem(opts?: XmlElemOptions): ClassDecorator {
  * }
  */
 export function XmlChildElem(opts: XmlChildElemOptions): PropertyDecorator {
-  return propertyDecoratorFactory('XmlChildElem', opts);
+  return propertyDecoratorFactory(
+    'XmlChildElem',
+    new InternalXmlPropertyOptions(opts),
+  );
 }
 
 /**
@@ -77,10 +82,13 @@ export function XmlChildElem(opts: XmlChildElemOptions): PropertyDecorator {
  * }
  */
 export function XmlAttribute(opts: XmlAttributeOptions): PropertyDecorator {
-  return propertyDecoratorFactory('XmlAttribute', {
-    ...opts,
-    attr: true,
-  });
+  return propertyDecoratorFactory(
+    'XmlAttribute',
+    new InternalXmlPropertyOptions({
+      ...opts,
+      attr: true,
+    }),
+  );
 }
 
 /**
@@ -122,9 +130,13 @@ export function XmlComments(): PropertyDecorator {
       );
     }
 
-    registry.setPropertyOptions(target.constructor, propertyKey, {
-      comments: true,
-    });
+    registry.setPropertyOptions(
+      target.constructor,
+      propertyKey,
+      new InternalXmlPropertyOptions({
+        comments: true,
+      }),
+    );
   };
 }
 
@@ -160,10 +172,13 @@ export function XmlComments(): PropertyDecorator {
  * ```
  */
 export function XmlChardata(opts: XmlChardataOptions): PropertyDecorator {
-  return propertyDecoratorFactory('XmlChardata', {
-    ...opts,
-    chardata: true,
-  });
+  return propertyDecoratorFactory(
+    'XmlChardata',
+    new InternalXmlPropertyOptions({
+      ...opts,
+      chardata: true,
+    }),
+  );
 }
 
 function propertyDecoratorFactory(
@@ -179,27 +194,31 @@ function propertyDecoratorFactory(
       );
     }
 
-    if (opts.union && opts.type) {
+    if (!opts.union && !opts.type && !opts.marshaller) {
       throw new TypeError(
-        `xml-class-transformer: The "union" option is not compatible with the "type" option at ` +
-          `${target.constructor.name}#${propertyKey.toString()}.`,
+        `xml-class-transformer: No "type", "union" or "marshaller" was specified for the ` +
+          `${target.constructor.name}#${propertyKey.toString()}. Add it to ` +
+          `the @${decoratorName}({...}) decorator.`,
       );
     }
 
-    if (!opts.union && !opts.type) {
+    if (
+      (opts.union && opts.type) ||
+      (opts.union && opts.marshaller) ||
+      (opts.type && opts.marshaller)
+    ) {
       throw new TypeError(
-        `xml-class-transformer: No "type" or "union" was specified for the ` +
-          `${target.constructor.name}#${propertyKey.toString()}. Add it to ` +
-          `the @${decoratorName}({...}) decorator.`,
+        `xml-class-transformer: The "union", "type" or "marshaller" options are not compatible with each other at ` +
+          `${target.constructor.name}#${propertyKey.toString()}. ` +
+          `You can specify only one of them.`,
       );
     }
 
     if (opts.union && !opts.union().length) {
       throw new TypeError(
         `xml-class-transformer: The "union" option in @${decoratorName}({ ... }) can't be empty ` +
-          `at ${
-            target.constructor.name
-          }#${propertyKey.toString()}. Either remove the "union" option or provide it with at least one type.`,
+          `at ${target.constructor.name}#${propertyKey.toString()}. ` +
+          `Either remove the "union" option or provide it with at least one type.`,
       );
     }
 
@@ -226,7 +245,7 @@ function propertyDecoratorFactory(
 
       if (foundPrimitiveType) {
         throw new TypeError(
-          `xml-class-transformer: unions of primitive types (String, Number or Boolean) are not supported. ` +
+          `xml-class-transformer: unions of primitive types (String, Number, Boolean, BigInt or Date) are not supported. ` +
             `Fix it in the decorator @${decoratorName}({ ` +
             `union: ${serializeUnionForLog(unionArr)}, ... }) ` +
             `at "${target.constructor.name}#${propertyKey.toString()}".`,

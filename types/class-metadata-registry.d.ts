@@ -6,11 +6,12 @@ type ClassMetadatas = {
 };
 export declare class ClassMetadataRegistry {
     private registry;
-    setEntityOptions(xClass: XmlClass, opts: XmlElemOptions): void;
-    setPropertyOptions(xClass: XmlClass, propertyKey: string, opts: InternalXmlPropertyOptions): void;
+    setEntityOptions(classConstructor: XmlClass, opts: XmlElemOptions): void;
+    setPropertyOptions(classConstr: XmlClass, propertyKey: string, opts: InternalXmlPropertyOptions): void;
     private getOrCreate;
-    get(xClass: XmlClass): ClassMetadatas | undefined;
+    get(classConstr: XmlClass): ClassMetadatas | undefined;
+    resolveUnionComponents(union: XmlClass[]): MapTagToClassConstr;
 }
+type MapTagToClassConstr = Map<string, XmlClass>;
 export declare const registry: ClassMetadataRegistry;
 export {};
-//# sourceMappingURL=class-metadata-registry.d.ts.map
