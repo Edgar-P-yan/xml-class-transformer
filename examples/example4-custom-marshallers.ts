@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Marshaller, XmlChildElem, XmlElem } from '../src/index';
+import { classToXml, Marshaller, XmlChildElem, XmlElem } from '../src/index';
 
 /**
  * An example of a custom marshaller that
@@ -41,4 +41,25 @@ class Article {
 
   @XmlChildElem({ marshaller: jsonMarshaller })
   detailsAsJson: any;
+
+  constructor(d?: Article) {
+    Object.assign(this, d || {});
+  }
 }
+
+const xml = classToXml(
+  new Article({
+    modifiedAt: moment('2022-01-01T00:00:00.000Z'),
+    viewCount: 123456.123,
+    detailsAsJson: { a: 1, b: 2 },
+  }),
+);
+
+console.log(xml);
+// Output:
+// <?xml version="1.0" encoding="UTF-8"?>
+// <Article>
+//   <modifiedAt>2022-01-01T00:00:00.000Z</modifiedAt>
+//   <viewCount>1,234,561.23</viewCount>
+//   <detailsAsJson>{"a":1,"b":2}</detailsAsJson>
+// </Article>

@@ -1,7 +1,11 @@
 import xmljs from 'xml-js-v2';
 import { registry } from './class-metadata-registry';
 import type { XmlClass, XmlPrimitiveType, XmlType } from './types';
-import { getDefaultMarshaller, isPrimitiveType } from './common';
+import {
+  errUnknownClass,
+  getDefaultMarshaller,
+  isPrimitiveType,
+} from './common';
 import { InternalXmlPropertyOptions } from './internal-types';
 import { defaultStringMarshaller } from './marshallers';
 
@@ -19,7 +23,9 @@ export function xmlToClass<T extends XmlClass>(
   const firstElement = parsed.elements?.[0];
 
   if (!firstElement) {
-    throw new Error('No elements found in xml.');
+    throw new Error(
+      'xml-class-transformer: No elements found in the xml, make sure its valid.',
+    );
   }
 
   return xmlToClassInternal(firstElement, classConstructor);
@@ -38,7 +44,7 @@ function xmlToClassInternal(
   const metadatas = registry.get(classConstructor);
 
   if (!metadatas) {
-    throw new Error('Unknown class ' + classConstructor);
+    throw errUnknownClass(classConstructor);
   }
 
   const classInstance = new classConstructor();

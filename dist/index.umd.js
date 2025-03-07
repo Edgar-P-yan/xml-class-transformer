@@ -1,5 +1,5 @@
 /*!
- * xml-class-transformer v3.0.0
+ * xml-class-transformer v3.0.1
  * (c) Edgar Pogosyan
  * Released under the MIT License.
  */
@@ -415,7 +415,7 @@
       const parsed = xmljs__default["default"].xml2js(xml, Object.assign(Object.assign({}, options), { compact: false, alwaysArray: true }));
       const firstElement = (_a = parsed.elements) === null || _a === void 0 ? void 0 : _a[0];
       if (!firstElement) {
-          throw new Error('No elements found in xml.');
+          throw new Error('xml-class-transformer: No elements found in the xml, make sure its valid.');
       }
       return xmlToClassInternal(firstElement, classConstructor);
   }
@@ -426,7 +426,7 @@
       }
       const metadatas = registry.get(classConstructor);
       if (!metadatas) {
-          throw new Error('Unknown class ' + classConstructor);
+          throw errUnknownClass(classConstructor);
       }
       const classInstance = new classConstructor();
       for (const [classKey, opts] of metadatas.properties) {

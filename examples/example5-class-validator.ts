@@ -61,7 +61,8 @@ const parsed = xmlToClass(
 );
 // class-validator can look up the constructor of
 // the value and so it known what validation rules to apply
-const valid = validateSync(parsed);
+const noErrorsHere = validateSync(parsed);
+console.log(noErrorsHere); // Output: []
 // expect(valid).to.be.empty;
 
 const parsedErr1 = xmlToClass(
@@ -75,6 +76,7 @@ const parsedErr1 = xmlToClass(
   Article,
 );
 const expErr = validateSync(parsedErr1);
+console.log(expErr);
 // assertClassValidator(expErr, 'Title', 'isNotEmpty');
 // assertClassValidator(expErr, 'Status', 'isEnum');
 // assertClassValidator(expErr, 'Comments.Text', 'isNotEmpty');
