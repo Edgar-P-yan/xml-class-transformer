@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.0.1
+
+[Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v3.0.0...v3.0.1)
+
+- improved error message for xmlToClass when the class is not registered.
+
 ## v3.0.0
 
 [Compare](https://github.com/edgar-p-yan/xml-class-transformer/compare/v2.3.0...v3.0.0)
